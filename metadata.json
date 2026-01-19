@@ -1,0 +1,7 @@
+{
+  "name": "La Guapa Fanzine Web",
+  "description": "A brutalist, collage-style fanzine application for La Guapa Restobar & Café, featuring interactive menus and Gemini-powered food recommendations.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

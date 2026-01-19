@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>La Guapa Home Fanzine</title>
+    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Caveat:wght@400;700&family=Permanent+Marker&family=Space+Grotesk:wght@300;500;700&family=Rock+Salt&family=Bangers&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#D93636",
+                        secondary: "#F2E8CF",
+                        dark: "#1A1818",
+                        accent: "#FFD700",
+                        "background-light": "#E5E1D8",
+                        "background-dark": "#121212",
+                        "paper-light": "#F2E8CF",
+                        "paper-dark": "#2A2A2A",
+                    },
+                    fontFamily: {
+                        display: ["'Abril Fatface'", "serif"],
+                        hand: ["'Permanent Marker'", "cursive"],
+                        body: ["'Space Grotesk'", "sans-serif"],
+                        script: ["'Caveat'", "cursive"],
+                        punk: ["'Bangers'", "cursive"],
+                        raw: ["'Rock Salt'", "cursive"],
+                    },
+                    animation: {
+                        'spin-slow': 'spin 12s linear infinite',
+                    }
+                },
+            },
+        };
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .ripped-edge-bottom {
+                clip-path: polygon(0% 0%, 100% 0%, 100% calc(100% - 12px), 95% 100%, 90% calc(100% - 8px), 85% 100%, 80% calc(100% - 10px), 75% 100%, 70% calc(100% - 9px), 65% 100%, 60% calc(100% - 7px), 55% 100%, 50% calc(100% - 12px), 45% 100%, 40% calc(100% - 6px), 35% 100%, 30% calc(100% - 10px), 25% 100%, 20% calc(100% - 5px), 15% 100%, 10% calc(100% - 9px), 5% 100%, 0% calc(100% - 12px));
+            }
+            .ripped-edge-top {
+                clip-path: polygon(0% 12px, 5% 0, 10% 10px, 15% 2px, 20% 12px, 25% 0, 30% 8px, 35% 2px, 40% 12px, 45% 4px, 50% 10px, 55% 0, 60% 12px, 65% 2px, 70% 8px, 75% 0, 80% 12px, 85% 4px, 90% 10px, 95% 0, 100% 12px, 100% 100%, 0% 100%);
+            }
+            .tape-effect {
+                background-color: rgba(255, 255, 255, 0.35);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                backdrop-filter: blur(1px);
+                border-left: 1px solid rgba(0,0,0,0.05);
+                border-right: 1px solid rgba(0,0,0,0.05);
+            }
+            .wall-grid {
+                background-image: radial-gradient(#bcbcbc 0.5px, transparent 0.5px);
+                background-size: 20px 20px;
+            }
+            .texture-overlay {
+                background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuAFvzHCz7l1Pi-tbL0P47d5mWewr3DYuBlOnZhFWHYzEePSmr0pl2vRY7GlWl9kWJdg_VznhEF7Z2TBZuUTmxiWF4TbZqcNeh3LIn6CUPcSvkRmhcLBrhWVOC2HtmHQDwWrYQ6BumSIUVZLRorPNMrXY9bm4jq5tTxTdbnqLHww8SPWcSIwdzKdBZ6Bxwiy9a58brfStQwjNf7zuBsVum70rdCKQHale6aXdLwdXry7z3SwnOfL-nK24vxI_0stfTDdAO8fwanpPGa2);
+                opacity: 0.12;
+                pointer-events: none;
+            }
+        }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "@google/genai": "https://esm.sh/@google/genai@^1.37.0",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "react": "https://esm.sh/react@^19.2.3"
+  }
+}
+</script>
+</head>
+<body class="bg-background-light dark:bg-background-dark min-h-screen text-dark dark:text-gray-100 font-body transition-colors duration-300 overflow-x-hidden relative wall-grid">
+    <div id="root"></div>
+</body>
+</html>
