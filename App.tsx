@@ -7,6 +7,7 @@ import CoverView from './components/CoverView';
 import HomeView from './components/HomeView';
 import MenuView from './components/MenuView';
 import RecommendView from './components/RecommendView';
+import AdminPanel from './components/AdminPanel';
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>(AppView.COVER);
@@ -16,14 +17,25 @@ const App: React.FC = () => {
     setView(AppView.MENU);
   };
 
+  // Temporary toggle for Admin (can be moved to a secret click or long press)
+  const toggleAdmin = () => {
+    setView(prev => prev === AppView.ADMIN ? AppView.HOME : AppView.ADMIN);
+  };
+
   return (
     <div className="max-w-md mx-auto min-h-screen relative overflow-hidden flex flex-col bg-background-light dark:bg-background-dark">
       {/* Visual Overlays */}
       <div className="fixed inset-0 texture-overlay w-full h-full z-50 pointer-events-none"></div>
       <div className="absolute inset-0 bg-paper-light/30 dark:bg-black/20 pointer-events-none"></div>
 
-      {/* Header (Hidden on Cover sometimes, but fanzines often have consistent headers) */}
-      <FanzineHeader />
+      {/* Header - Passing toggleAdmin to the menu button logic would be cleaner but let's keep it simple */}
+      <div onClick={(e) => {
+        // Simple "secret": click the header title area while holding shift? 
+        // Or just repurpose the menu button for now in this demo.
+        if (e.detail === 3) toggleAdmin(); // Triple click header for Admin
+      }}>
+        <FanzineHeader />
+      </div>
 
       <div className="flex-grow flex flex-col overflow-y-auto no-scrollbar pt-4">
         {view === AppView.COVER && (
@@ -40,6 +52,10 @@ const App: React.FC = () => {
 
         {view === AppView.RECOMMEND && (
           <RecommendView />
+        )}
+
+        {view === AppView.ADMIN && (
+          <AdminPanel />
         )}
 
         {/* Placeholder for Search/Profile if needed */}

@@ -34,20 +34,42 @@ const MenuView: React.FC = () => {
           {activeCategory}
         </h2>
 
-        <div className="grid gap-8">
+        <div className="grid gap-12">
           {filteredItems.map((item, idx) => (
             <div 
               key={item.id} 
-              className={`bg-white dark:bg-paper-dark border-2 border-black p-4 relative flyer-shadow group ${idx % 2 === 0 ? 'rotate-1' : '-rotate-1'}`}
+              className={`bg-white dark:bg-paper-dark border-2 border-black p-5 relative flyer-shadow group transition-all hover:rotate-0 ${idx % 2 === 0 ? 'rotate-1' : '-rotate-1'}`}
             >
-              <div className="absolute -top-3 -right-2 w-12 h-6 tape-effect rotate-12 opacity-80"></div>
+              {/* Enhanced Tape Effect */}
+              <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-24 h-8 bg-primary/10 border border-black/5 tape-effect rotate-2 z-10"></div>
               
-              <div className="flex justify-between items-start mb-2">
-                <h3 className="font-display text-2xl group-hover:text-primary transition-colors">{item.name}</h3>
-                <span className="font-punk text-2xl text-primary bg-accent/20 px-2 border border-black/10">{item.price}</span>
+              <div className="flex justify-between items-start mb-4 pt-2">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="font-punk text-[10px] bg-black text-white px-2 py-0.5 uppercase tracking-widest">
+                      CAPÍTULO {item.chapter}
+                    </span>
+                    <span className="h-[1px] w-8 bg-black/20"></span>
+                  </div>
+                  <h3 className="font-display text-3xl group-hover:text-primary transition-colors leading-tight">
+                    {item.name}
+                  </h3>
+                </div>
+                <span className="font-punk text-3xl text-primary bg-accent/10 px-2 border border-black/5">
+                  {item.price}
+                </span>
               </div>
               
-              <p className="font-body text-sm text-gray-700 dark:text-gray-300 leading-snug mb-3 font-medium">
+              {/* Exile Narrative History */}
+              <div className="relative mb-4">
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-accent"></div>
+                <p className="font-hand text-sm text-gray-600 dark:text-gray-400 italic pl-4 leading-tight">
+                  "{item.history}"
+                </p>
+              </div>
+
+              {/* Standard Description */}
+              <p className="font-body text-sm text-gray-800 dark:text-gray-300 leading-snug mb-4 font-medium">
                 {item.description}
               </p>
 
@@ -59,16 +81,16 @@ const MenuView: React.FC = () => {
                 ))}
               </div>
 
-              <div className="absolute -bottom-2 -left-2 w-8 h-8 rounded-full bg-accent border-2 border-black flex items-center justify-center text-xs font-bold text-dark">
-                {idx + 1}
+              <div className="absolute -bottom-3 -right-3 w-10 h-10 rounded-full bg-accent border-2 border-black flex items-center justify-center text-xs font-bold text-dark shadow-md z-20 transform group-hover:scale-110 transition-transform">
+                <span className="material-symbols-outlined text-sm">auto_stories</span>
               </div>
             </div>
           ))}
         </div>
 
         <div className="py-12 text-center">
-            <div className="inline-block bg-black text-white px-4 py-2 font-hand text-sm -rotate-2">
-                "ALL BURGERS & HOTDOGS SERVED WITH PAPAS"
+            <div className="inline-block bg-black text-white px-6 py-3 font-hand text-lg -rotate-2 border-2 border-accent">
+                "CADA PLATO ES UN MAPA DE DONDE VINIMOS"
             </div>
         </div>
       </div>

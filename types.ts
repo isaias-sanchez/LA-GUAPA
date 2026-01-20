@@ -5,7 +5,8 @@ export enum AppView {
   MENU = 'MENU',
   SEARCH = 'SEARCH',
   PROFILE = 'PROFILE',
-  RECOMMEND = 'RECOMMEND'
+  RECOMMEND = 'RECOMMEND',
+  ADMIN = 'ADMIN'
 }
 
 export enum MenuCategory {
@@ -21,6 +22,8 @@ export interface MenuItem {
   id: string;
   name: string;
   category: MenuCategory;
+  chapter: number;
+  history: string;
   description: string;
   price: string;
   tags?: string[];
