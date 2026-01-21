@@ -7,7 +7,7 @@ const AdminPanel: React.FC = () => {
       <div className="relative mb-10 transform -rotate-1">
         <div className="bg-secondary text-accent p-6 border-4 border-black flyer-shadow">
           <h1 className="font-punk text-4xl tracking-widest uppercase underline decoration-primary decoration-4">
-            The Curator's Desk
+            El Escritorio del Curador
           </h1>
           <p className="font-hand text-lg text-primary mt-2">Panel de Control del Diario</p>
         </div>
@@ -26,7 +26,7 @@ const AdminPanel: React.FC = () => {
           
           <div className="space-y-4">
             <div className="border-2 border-dashed border-secondary/20 p-4">
-              <span className="font-punk text-xs text-primary">SELECT CHAPTER</span>
+              <span className="font-punk text-xs text-primary">SELECCIONAR CAPÍTULO</span>
               <div className="flex gap-2 mt-2 overflow-x-auto no-scrollbar pb-2">
                 {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
                   <button key={n} className="w-10 h-10 border-2 border-black font-punk flex-shrink-0 hover:bg-primary hover:text-white transition-colors">
@@ -68,7 +68,7 @@ const AdminPanel: React.FC = () => {
       </div>
       
       <div className="mt-12 text-center opacity-30 font-mono text-[10px] uppercase tracking-tighter text-secondary">
-        Terminal Access v1.0.4 // Unauthorized access is strictly encouraged for art purposes.
+        Acceso Terminal v1.0.4 // El acceso no autorizado está estrictamente fomentado con fines artísticos.
       </div>
     </div>
   );

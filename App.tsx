@@ -1,6 +1,7 @@
 
-import React, { useState, useEffect } from 'react';
-import { AppView, MenuCategory } from './types';
+import React, { useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { AppView, MenuCategory, MenuItem } from './types';
 import FanzineHeader from './components/FanzineHeader';
 import Navigation from './components/Navigation';
 import CoverView from './components/CoverView';
@@ -8,16 +9,21 @@ import HomeView from './components/HomeView';
 import MenuView from './components/MenuView';
 import RecommendView from './components/RecommendView';
 import AdminPanel from './components/AdminPanel';
+import ProductDetailView from './components/ProductDetailView';
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>(AppView.COVER);
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
 
-  // Handle manual navigation from home tiles
   const handleSelectCategory = (cat: MenuCategory) => {
     setView(AppView.MENU);
   };
 
-  // Temporary toggle for Admin (can be moved to a secret click or long press)
+  const handleSelectItem = (item: MenuItem) => {
+    setSelectedItem(item);
+    setView(AppView.DETAIL);
+  };
+
   const toggleAdmin = () => {
     setView(prev => prev === AppView.ADMIN ? AppView.HOME : AppView.ADMIN);
   };
@@ -28,56 +34,69 @@ const App: React.FC = () => {
       <div className="fixed inset-0 texture-overlay w-full h-full z-50 pointer-events-none"></div>
       <div className="absolute inset-0 bg-paper-light/30 dark:bg-black/20 pointer-events-none"></div>
 
-      {/* Header - Passing toggleAdmin to the menu button logic would be cleaner but let's keep it simple */}
       <div onClick={(e) => {
-        // Simple "secret": click the header title area while holding shift? 
-        // Or just repurpose the menu button for now in this demo.
-        if (e.detail === 3) toggleAdmin(); // Triple click header for Admin
+        if (e.detail === 3) toggleAdmin();
       }}>
-        <FanzineHeader />
+        {view !== AppView.DETAIL && <FanzineHeader />}
       </div>
 
-      <div className="flex-grow flex flex-col overflow-y-auto no-scrollbar pt-4">
-        {view === AppView.COVER && (
-          <CoverView onEnter={() => setView(AppView.HOME)} />
-        )}
+      <main className="flex-grow flex flex-col overflow-y-auto no-scrollbar pt-4 pb-24 relative">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={view === AppView.DETAIL ? `detail-${selectedItem?.id}` : view}
+            initial={{ opacity: 0, x: 20, rotate: 1 }}
+            animate={{ opacity: 1, x: 0, rotate: 0 }}
+            exit={{ opacity: 0, x: -20, rotate: -1 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="flex-grow flex flex-col"
+          >
+            {view === AppView.COVER && (
+              <CoverView onEnter={() => setView(AppView.HOME)} />
+            )}
 
-        {view === AppView.HOME && (
-          <HomeView onSelectCategory={handleSelectCategory} />
-        )}
+            {view === AppView.HOME && (
+              <HomeView onSelectCategory={handleSelectCategory} />
+            )}
 
-        {view === AppView.MENU && (
-          <MenuView />
-        )}
+            {view === AppView.MENU && (
+              <MenuView onSelectItem={handleSelectItem} />
+            )}
 
-        {view === AppView.RECOMMEND && (
-          <RecommendView />
-        )}
+            {view === AppView.RECOMMEND && (
+              <RecommendView />
+            )}
 
-        {view === AppView.ADMIN && (
-          <AdminPanel />
-        )}
+            {view === AppView.ADMIN && (
+              <AdminPanel />
+            )}
 
-        {/* Placeholder for Search/Profile if needed */}
-        {(view === AppView.SEARCH || view === AppView.PROFILE) && (
-          <div className="flex-grow flex items-center justify-center p-12 text-center">
-            <div className="bg-white p-8 border-2 border-black rotate-1">
-              <h2 className="font-punk text-3xl">Under Construction</h2>
-              <p className="font-hand mt-4">The rebellion is busy cooking.</p>
-              <button 
-                onClick={() => setView(AppView.HOME)}
-                className="mt-6 bg-primary text-white px-4 py-2 font-punk text-xl border-2 border-black"
-              >
-                GO BACK
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+            {view === AppView.DETAIL && selectedItem && (
+              <ProductDetailView 
+                item={selectedItem} 
+                onBack={() => setView(AppView.MENU)} 
+              />
+            )}
 
-      <Navigation currentView={view} setView={setView} />
+            {(view === AppView.SEARCH || view === AppView.PROFILE) && (
+              <div className="flex-grow flex items-center justify-center p-12 text-center">
+                <div className="bg-white p-8 border-2 border-black rotate-1">
+                  <h2 className="font-punk text-3xl text-secondary">En Construcción</h2>
+                  <p className="font-hand mt-4 text-dark">La rebelión está ocupada cocinando.</p>
+                  <button 
+                    onClick={() => setView(AppView.HOME)}
+                    className="mt-6 bg-primary text-white px-4 py-2 font-punk text-xl border-2 border-black"
+                  >
+                    VOLVER
+                  </button>
+                </div>
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </main>
+
+      {view !== AppView.DETAIL && <Navigation currentView={view} setView={setView} />}
       
-      {/* Global CSS for animations & noise */}
       <style dangerouslySetInnerHTML={{ __html: `
         @keyframes fade-in {
           from { opacity: 0; }
@@ -94,6 +113,9 @@ const App: React.FC = () => {
         
         .flyer-shadow {
           box-shadow: 5px 5px 0px 0px rgba(0,0,0,0.15);
+        }
+        .shadow-heavy {
+          box-shadow: 6px 6px 0px 0px rgba(0,0,0,1);
         }
       `}} />
     </div>

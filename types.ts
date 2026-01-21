@@ -6,7 +6,8 @@ export enum AppView {
   SEARCH = 'SEARCH',
   PROFILE = 'PROFILE',
   RECOMMEND = 'RECOMMEND',
-  ADMIN = 'ADMIN'
+  ADMIN = 'ADMIN',
+  DETAIL = 'DETAIL'
 }
 
 export enum MenuCategory {
@@ -28,6 +29,14 @@ export interface MenuItem {
   price: string;
   tags?: string[];
   image?: string;
+}
+
+export interface ScrapbookElement {
+  id: string;
+  type: 'stamp' | 'ticket' | 'sketch' | 'photo';
+  imageUrl: string;
+  rotation: string;
+  caption?: string;
 }
 
 export interface RecommendationRequest {

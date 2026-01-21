@@ -1,74 +1,165 @@
-
-import React from 'react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { AppView } from '../types';
+import { ProductDiario } from './ProductDiario';
+import { MENU_ITEMS } from '../constants';
 
 interface CoverViewProps {
   onEnter: () => void;
 }
 
 const CoverView: React.FC<CoverViewProps> = ({ onEnter }) => {
-  const heroAnimationUrl = "https://secaqjszqfywcoykllhx.supabase.co/storage/v1/object/sign/LA%20GUAPA/Quiero_que_hagas_1080p_202601182223-ezgif.com-video-to-webp-converter.webp?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zOGI0YTY5My0xNmVkLTRhYmYtYTgyNS0wMDAxZTU3N2RlNzMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJMQSBHVUFQQS9RdWllcm9fcXVlX2hhZ2FzXzEwODBwXzIwMjYwMTE4MjIyMy1lemdpZi5jb20tdmlkZW8tdG8td2VicC1jb252ZXJ0ZXIud2VicCIsImlhdCI6MTc2ODc5NTQxMiwiZXhwIjoxNzY5NDAwMjEyfQ.ZywbwEV56BEBMAAtHvhLgDQJQmEhVzak-ZK57WNueK8";
+  const [isJournalOpen, setIsJournalOpen] = useState(false);
+  const heroAnimationUrl = "https://secaqjszqfywcoykllhx.supabase.co/storage/v1/object/sign/LA%20GUAPA/Quiero_que_hagas_1080p_202601182223-ezgif.com-video-to-webp-converter.webp?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zOGI0YTY5My0xNmVkLTRhYmYtYTgyNS0wMDAxZTU3N2RlNzMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJMQSBHVUFQQS9RdWllcm9fcXVl_aGFnYXNfMTA4MHBfMjAyNjAxMTgyMjIzLWV6Z2lmLmNvbS12aWRlby10by13ZWJwLWNvbnZlcnRlci53ZWJwIiwiaWF0IjoxNzY4Nzk1NDEyLCJleHAiOjE3Njk0MDAyMTJ9.ZywbwEV56BEBMAAtHvhLgDQJQmEhVzak-ZK57WNueK8";
+
+  const featuredProducts = MENU_ITEMS.filter(item => item.tags?.includes('Signature'));
 
   return (
-    <div className="flex-grow flex flex-col justify-center px-6 relative mb-12 animate-fade-in">
-       {/* Vinyl Record Mockup Background */}
-       <div className="absolute -right-24 top-1/4 w-72 h-72 rounded-full bg-black border-4 border-gray-800 animate-spin-slow opacity-80 z-0 shadow-2xl">
-        <div className="absolute inset-0 m-auto w-28 h-28 rounded-full bg-primary border-4 border-white flex items-center justify-center">
-          <span className="text-[10px] text-white font-bold uppercase tracking-widest font-hand">Side A</span>
-        </div>
-      </div>
-
-      <div className="relative z-10 transform -rotate-1 cursor-pointer" onClick={onEnter}>
-        <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-40 h-10 tape-effect rotate-2 z-20 opacity-90"></div>
-        <div className="bg-white dark:bg-paper-dark p-1 shadow-2xl ripped-edge-bottom pb-8 border-2 border-black overflow-hidden">
-          <div className="relative h-[400px] overflow-hidden border-b-2 border-black group">
-            <img 
-              alt="La Guapa Hero Animation" 
-              className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-1000" 
-              src={heroAnimationUrl}
-            />
-            {/* Branding Overlay on Image */}
-            <div className="absolute inset-0 bg-primary/10 mix-blend-multiply pointer-events-none"></div>
-            
-            <div className="absolute bottom-6 left-6 bg-primary px-4 py-2 transform rotate-2 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-              <p className="font-display text-white text-2xl tracking-tighter">EL MANIFIESTO</p>
+    <div className="flex-grow flex flex-col relative overflow-y-auto no-scrollbar">
+      <AnimatePresence mode="wait">
+        {!isJournalOpen ? (
+          /* PANTALLA CERRADA: SOBRE / CARPETA */
+          <motion.div
+            key="closed"
+            initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            exit={{ opacity: 0, scale: 1.1, filter: "blur(10px)", y: -100 }}
+            onClick={() => setIsJournalOpen(true)}
+            className="flex-grow flex flex-col items-center justify-center px-8 cursor-pointer group"
+          >
+            <div className="relative w-full max-w-sm aspect-[3/4] bg-[#d2b48c] dark:bg-[#3d3a33] border-4 border-black shadow-heavy transform transition-transform group-hover:rotate-1 group-hover:scale-[1.02]">
+              {/* Sticker / Sello */}
+              <div className="absolute top-10 -right-6 w-24 h-24 bg-primary rounded-full border-4 border-black flex items-center justify-center text-white font-punk text-xs transform rotate-12 shadow-lg z-20">
+                <span className="text-center leading-none uppercase">Confidencial<br/>Exilio 2024</span>
+              </div>
+              
+              {/* Cinta adhesiva */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-12 tape-effect rotate-1 z-10 opacity-90"></div>
+              
+              <div className="p-8 flex flex-col h-full border-2 border-dashed border-black/20 m-2">
+                <div className="mt-12 space-y-4">
+                  <h1 className="font-display text-6xl text-dark dark:text-white leading-none tracking-tighter">DIARIO<br/>DE UN<br/>VIAJE</h1>
+                  <div className="h-2 w-20 bg-primary"></div>
+                  <p className="font-hand text-2xl text-secondary dark:text-accent opacity-80 mt-6">
+                    Propiedad de: <br/>El Exiliado
+                  </p>
+                </div>
+                
+                <div className="mt-auto flex flex-col items-center">
+                  <motion.div 
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ repeat: Infinity, duration: 2 }}
+                    className="w-16 h-16 rounded-full border-2 border-black flex items-center justify-center bg-accent text-dark shadow-[3px_3px_0px_0px_rgba(0,0,0,1)]"
+                  >
+                    <span className="material-symbols-outlined font-bold">touch_app</span>
+                  </motion.div>
+                  <p className="font-punk text-xl mt-4 tracking-widest text-dark dark:text-white">TOCA PARA ABRIR EL ARCHIVO</p>
+                </div>
+              </div>
             </div>
-            
-            <div className="absolute top-6 right-6 bg-accent text-black font-punk px-3 py-1 transform -rotate-12 border-2 border-black shadow-lg">
-               LATE NIGHT SPECIAL
+          </motion.div>
+        ) : (
+          /* CONTENIDO DEL HERO REVELADO */
+          <motion.div
+            key="open"
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex-grow flex flex-col justify-start px-6 pt-4 pb-20 relative"
+          >
+            {/* Vinyl Record Mockup Background */}
+            <div className="fixed -right-24 top-1/4 w-72 h-72 rounded-full bg-black border-4 border-gray-800 animate-spin-slow opacity-30 z-0">
+              <div className="absolute inset-0 m-auto w-28 h-28 rounded-full bg-primary border-4 border-white flex items-center justify-center">
+                <span className="text-[10px] text-white font-bold uppercase tracking-widest font-hand">Cara A</span>
+              </div>
             </div>
-          </div>
 
-          <div className="p-6 bg-paper-light dark:bg-[#1e1e1e] relative">
-             <div className="absolute -right-6 -top-12 w-24 h-24 bg-yellow-400 rounded-full flex items-center justify-center transform rotate-12 shadow-xl z-20 border-2 border-black animate-pulse">
-                <span className="font-hand text-black text-sm text-center font-bold leading-none">VIBRA<br/>AHORA</span>
-             </div>
-             <h2 className="font-display text-4xl mb-3 text-dark dark:text-white leading-none tracking-tighter uppercase italic">
-                Sabor que <br/><span className="font-hand text-primary not-italic">rompe esquemas.</span>
-             </h2>
-             <div className="h-1 w-20 bg-primary mb-4"></div>
-             <p className="font-body text-sm leading-relaxed text-gray-800 dark:text-gray-300 font-medium italic">
-                "No servimos comida, servimos rebelión. En el corazón de Madrid, donde el humo se mezcla con el arte y el hambre se sacia con alma."
-             </p>
-          </div>
-        </div>
-      </div>
+            <div className="relative z-10 transform rotate-1 mb-8">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-40 h-10 tape-effect rotate-2 z-20 opacity-90"></div>
+              <motion.div 
+                initial={{ rotateX: 90 }}
+                animate={{ rotateX: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="bg-white dark:bg-paper-dark p-1 shadow-2xl ripped-edge-bottom pb-8 border-2 border-black overflow-hidden origin-top"
+              >
+                <div className="relative h-[250px] overflow-hidden border-b-2 border-black group">
+                  {/* Fixed: animating filter: grayscale() instead of shorthand grayscale prop to resolve type errors */}
+                  <motion.img 
+                    initial={{ scale: 1.2, filter: "grayscale(100%)" }}
+                    animate={{ scale: 1, filter: "grayscale(50%)" }}
+                    transition={{ duration: 1.5 }}
+                    alt="La Guapa Hero Animation" 
+                    className="w-full h-full object-cover group-hover:grayscale-0 transition-all duration-1000" 
+                    src={heroAnimationUrl}
+                  />
+                  <div className="absolute inset-0 bg-primary/10 mix-blend-multiply pointer-events-none"></div>
+                </div>
 
-      <div className="mt-8 text-center transform rotate-1 relative py-4">
-        <div className="absolute -top-2 left-1/3 w-20 h-6 tape-effect -rotate-12 opacity-50"></div>
-        <p className="font-script text-3xl text-gray-900 dark:text-gray-200 drop-shadow-sm">
-          "Alimenta tu espíritu,<br/>crea el caos."
-        </p>
-        <div className="mt-6 flex justify-center items-center gap-6">
-           <span className="font-punk text-xs tracking-widest text-primary border-b border-primary">2024</span>
-           <div className="flex gap-2">
-             <span className="w-2 h-2 rounded-full bg-primary animate-bounce"></span>
-             <span className="w-2 h-2 rounded-full bg-accent animate-bounce [animation-delay:0.2s]"></span>
-             <span className="w-2 h-2 rounded-full bg-dark animate-bounce [animation-delay:0.4s]"></span>
-           </div>
-           <span className="font-punk text-xs tracking-widest text-primary border-b border-primary">MADRID</span>
-        </div>
-      </div>
+                <div className="p-6 bg-paper-light dark:bg-[#1e1e1e] relative">
+                  <motion.div 
+                    initial={{ scale: 0, rotate: -45 }}
+                    animate={{ scale: 1, rotate: 12 }}
+                    transition={{ delay: 0.5, type: "spring" }}
+                    className="absolute -right-6 -top-12 w-24 h-24 bg-yellow-400 rounded-full flex items-center justify-center shadow-xl z-20 border-2 border-black"
+                  >
+                    <span className="font-hand text-black text-sm text-center font-bold leading-none uppercase">Vibra<br/>Ahora</span>
+                  </motion.div>
+
+                  {/* El Manifiesto del Exilio Refactorizado */}
+                  <div className="mb-8 border-l-4 border-primary pl-4 py-2">
+                    <motion.p 
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="font-hand text-xl text-secondary dark:text-accent leading-tight italic"
+                    >
+                      "Bienvenidos a mi exilio. Lo que tienes aquí no es una lista de precios, 
+                      sino los retazos de una maleta que recorrió el mundo buscando un sabor 
+                      que solo existía en mi memoria."
+                    </motion.p>
+                  </div>
+
+                  <h2 className="font-display text-4xl mb-3 text-dark dark:text-white leading-none tracking-tighter uppercase italic">
+                    Sabor que <br/><span className="font-hand text-primary not-italic">rompe esquemas.</span>
+                  </h2>
+                  
+                  <div className="h-px w-full bg-secondary/10 my-4"></div>
+                  
+                  <p className="font-body text-[10px] leading-relaxed text-gray-500 font-bold text-center uppercase tracking-[0.2em]">
+                    BARRANQUILLA — LONDRES — MADRID — EL DESTINO
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Platos destacados */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1 }}
+              className="mt-4 relative z-20"
+            >
+              <div className="text-center mb-2">
+                <span className="font-punk text-secondary dark:text-accent text-xs tracking-widest uppercase">Ecos de la Memoria</span>
+              </div>
+              <ProductDiario items={featuredProducts} autoplay={true} />
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2 }}
+              className="text-center mt-12 pb-12 relative z-30"
+            >
+              <button 
+                onClick={onEnter}
+                className="bg-primary text-white font-punk text-2xl px-12 py-4 shadow-heavy border-4 border-black hover:scale-105 transition-all transform -rotate-1"
+              >
+                IR AL MENÚ PRINCIPAL
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

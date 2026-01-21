@@ -1,23 +1,23 @@
-
 import { GoogleGenAI, Type } from "@google/genai";
 import { MenuItem, RecommendationRequest } from "../types";
 import { MENU_ITEMS } from "../constants";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// Corrected initialization using process.env.API_KEY directly as per guidelines
+const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const getChefRecommendation = async (req: RecommendationRequest): Promise<string> => {
   const menuStr = MENU_ITEMS.map(i => `${i.name} (${i.category}): ${i.description}`).join('\n');
   
-  const prompt = `You are the chaotic but brilliant chef-artist of "La Guapa".
-  A user wants a recommendation.
-  Mood: ${req.mood}
-  Hunger: ${req.hungerLevel}
-  Dietary: ${req.dietary || 'None'}
+  const prompt = `Eres el caótico pero brillante chef-artista de "La Guapa".
+  Un usuario quiere una recomendación.
+  Estado de ánimo: ${req.mood}
+  Nivel de hambre: ${req.hungerLevel} (donde 'snack' es picoteo, 'meal' es comida y 'feast' es banquete)
+  Restricciones: ${req.dietary || 'Ninguna'}
   
-  Here is our menu:
+  Aquí está nuestro menú:
   ${menuStr}
   
-  Pick 1 or 2 items and explain why in a poetic, street-wise, fanzine-style manifesto (in Spanish). Keep it short (max 60 words). Don't use bullet points.`;
+  Elige 1 o 2 platos y explica por qué en un manifiesto poético, callejero y estilo fanzine (EXCLUSIVAMENTE EN ESPAÑOL). Sé breve (máximo 60 palabras). No uses viñetas.`;
 
   try {
     const response = await ai.models.generateContent({
@@ -27,6 +27,7 @@ export const getChefRecommendation = async (req: RecommendationRequest): Promise
         temperature: 0.9,
       }
     });
+    // The GenerateContentResponse has a `text` property that directly returns the extracted string output.
     return response.text || "La cocina está en llamas, pero el alma sigue viva. Prueba la Belanova.";
   } catch (error) {
     console.error("Gemini Error:", error);

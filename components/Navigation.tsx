@@ -23,10 +23,10 @@ const Navigation: React.FC<NavigationProps> = ({ currentView, setView }) => {
   return (
     <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-50">
       <div className="bg-secondary dark:bg-black/95 backdrop-blur-md border-t-4 border-black px-6 py-4 flex justify-between items-center h-24 shadow-[0_-10px_20px_rgba(0,0,0,0.2)] ripped-edge-top">
-        <NavItem view={AppView.COVER} icon="auto_stories" label="Cover" />
-        <NavItem view={AppView.HOME} icon="home" label="Vibes" />
-        <NavItem view={AppView.RECOMMEND} icon="auto_awesome" label="Chef" />
-        <NavItem view={AppView.MENU} icon="restaurant_menu" label="Menu" />
+        <NavItem view={AppView.COVER} icon="auto_stories" label="Portada" />
+        <NavItem view={AppView.HOME} icon="home" label="Inicio" />
+        <NavItem view={AppView.RECOMMEND} icon="auto_awesome" label="Oráculo" />
+        <NavItem view={AppView.MENU} icon="restaurant_menu" label="Menú" />
       </div>
     </nav>
   );
