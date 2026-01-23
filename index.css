@@ -1,0 +1,64 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #e63946;
+  --color-secondary: #d4af37;
+  --color-accent: #f5f5dc;
+  --color-dark: #1A1818;
+  --color-background-light: #f5f5dc;
+  --color-background-dark: #121212;
+  --color-paper-light: #fdfdfd;
+  --color-paper-dark: #2A2A2A;
+  --color-paper: #fdfdfd;
+
+  --font-display: "Abril Fatface", serif;
+  --font-hand: "Permanent Marker", cursive;
+  --font-body: "Space Grotesk", sans-serif;
+  --font-script: "Caveat", cursive;
+  --font-punk: "Bangers", cursive;
+  --font-raw: "Rock Salt", cursive;
+
+  --animate-spin-slow: spin 12s linear infinite;
+}
+
+@layer utilities {
+  .ripped-edge-bottom {
+    clip-path: polygon(0% 0%, 100% 0%, 100% calc(100% - 12px), 95% 100%, 90% calc(100% - 8px), 85% 100%, 80% calc(100% - 10px), 75% 100%, 70% calc(100% - 9px), 65% 100%, 60% calc(100% - 7px), 55% 100%, 50% calc(100% - 12px), 45% 100%, 40% calc(100% - 6px), 35% 100%, 30% calc(100% - 10px), 25% 100%, 20% calc(100% - 5px), 15% 100%, 10% calc(100% - 9px), 5% 100%, 0% calc(100% - 12px));
+  }
+
+  .ripped-edge-top {
+    clip-path: polygon(0% 12px, 5% 0, 10% 10px, 15% 2px, 20% 12px, 25% 0, 30% 8px, 35% 2px, 40% 12px, 45% 4px, 50% 10px, 55% 0, 60% 12px, 65% 2px, 70% 8px, 75% 0, 80% 12px, 85% 4px, 90% 10px, 95% 0, 100% 12px, 100% 100%, 0% 100%);
+  }
+
+  .tape-effect {
+    background-color: rgba(245, 245, 220, 0.4);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(1px);
+    border-left: 1px solid rgba(0, 0, 0, 0.1);
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .wall-grid {
+    background-image: radial-gradient(#bcbcbc 0.5px, transparent 0.5px);
+    background-size: 20px 20px;
+  }
+
+  .texture-overlay {
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuAFvzHCz7l1Pi-tbL0P47d5mWewr3DYuBlOnZhFWHYzEePSmr0pl2vRY7GlWl9kWJdg_VznhEF7Z2TBZuUTmxiWF4TbZqcNeh3LIn6CUPcSvkRmhcLBrhWVOC2HtmHQDwWrYQ6BumSIUVZLRorPNMrXY9bm4jq5tTxTdbnqLHww8SPWcSIwdzKdBZ6Bxwiy9a58brfStQwjNf7zuBsVum70rdCKQHale6aXdLwdXry7z3SwnOfL-nK24vxI_0stfTDdAO8fwanpPGa2);
+    opacity: 0.12;
+    pointer-events: none;
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e63946;
+  border-radius: 10px;
+}

@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MenuItem } from "../types";
+import { DEFAULT_PUNK_IMAGE } from "../constants";
 
 export const ProductDiario = ({
   items,
@@ -64,10 +65,11 @@ export const ProductDiario = ({
                 >
                   {/* Adhesive tape effect */}
                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-16 h-6 bg-accent/60 backdrop-blur-sm border border-black/10 tape-effect z-50"></div>
-                  
+
                   <img
-                    src={item.image || 'https://via.placeholder.com/500'}
+                    src={item.image || DEFAULT_PUNK_IMAGE}
                     alt={item.name}
+                    onError={(e) => { e.currentTarget.src = DEFAULT_PUNK_IMAGE; }}
                     className="h-full w-full rounded-lg object-cover shadow-2xl border-4 border-white grayscale hover:grayscale-0 transition-all duration-500"
                   />
                 </motion.div>
@@ -93,7 +95,7 @@ export const ProductDiario = ({
               <h3 className="text-3xl font-display text-secondary mt-1 uppercase italic leading-none">
                 {items[active].name}
               </h3>
-              
+
               <motion.div className="mt-4 font-hand text-lg text-gray-700 dark:text-gray-300 leading-tight italic">
                 {items[active].history.substring(0, 100)}...
               </motion.div>

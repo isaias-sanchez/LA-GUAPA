@@ -32,6 +32,13 @@ const App: React.FC = () => {
   return (
     <div className="max-w-md mx-auto min-h-screen relative overflow-hidden flex flex-col bg-background-light dark:bg-background-dark">
       {/* Visual Overlays */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <img
+          src="https://secaqjszqfywcoykllhx.supabase.co/storage/v1/object/sign/LA%20GUAPA/Quiero_que_hagas_1080p_202601182223-ezgif.com-video-to-webp-converter.webp?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zOGI0YTY5My0xNmVkLTRhYmYtYTgyNS0wMDAxZTU3N2RlNzMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJMQSBHVUFQQS9RdWllcm9fcXVlX2hhZ2FzXzEwODBwXzIwMjYwMTE4MjIyMy1lemdpZi5jb20tdmlkZW8tdG8td2VicC1jb252ZXJ0ZXIud2VicCIsImlhdCI6MTc2OTE0NTQzMSwiZXhwIjoxNzcxNzM3NDMxfQ.Nhy1vLE7yAI6wTGr8D47MddhW_FpvgmykUYfK0O6KQk"
+          alt="Background Atmosphere"
+          className="w-full h-full object-cover blur-[8px] opacity-40 scale-105"
+        />
+      </div>
       <div className="fixed inset-0 texture-overlay w-full h-full z-50 pointer-events-none"></div>
       <div className="absolute inset-0 bg-paper-light/30 dark:bg-black/20 pointer-events-none"></div>
 
@@ -76,9 +83,9 @@ const App: React.FC = () => {
             )}
 
             {view === AppView.DETAIL && selectedItem && (
-              <ProductDetailView 
-                item={selectedItem} 
-                onBack={() => setView(AppView.MENU)} 
+              <ProductDetailView
+                item={selectedItem}
+                onBack={() => setView(AppView.MENU)}
               />
             )}
 
@@ -87,7 +94,7 @@ const App: React.FC = () => {
                 <div className="bg-white p-8 border-2 border-black rotate-1">
                   <h2 className="font-punk text-3xl text-secondary">En Construcción</h2>
                   <p className="font-hand mt-4 text-dark">La rebelión está ocupada cocinando.</p>
-                  <button 
+                  <button
                     onClick={() => setView(AppView.HOME)}
                     className="mt-6 bg-primary text-white px-4 py-2 font-punk text-xl border-2 border-black"
                   >
@@ -101,8 +108,9 @@ const App: React.FC = () => {
       </main>
 
       {view !== AppView.DETAIL && <Navigation currentView={view} setView={setView} />}
-      
-      <style dangerouslySetInnerHTML={{ __html: `
+
+      <style dangerouslySetInnerHTML={{
+        __html: `
         @keyframes fade-in {
           from { opacity: 0; }
           to { opacity: 1; }

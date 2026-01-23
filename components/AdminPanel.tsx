@@ -1,75 +1,44 @@
-
 import React from 'react';
+import { AnimatedGroup } from './ui/AnimatedGroup';
+import { DEFAULT_PUNK_IMAGE } from '../constants';
 
 const AdminPanel: React.FC = () => {
+  const adminOptions = [
+    { title: 'INICIO', image: 'https://images.beta.cosmos.so/fc6fdd93-552c-47e6-98aa-b8fb3ba070a2?format=jpeg' }, // Placeholder or use DEFAULT
+    { title: 'MENÚ', image: 'https://images.beta.cosmos.so/cb674d14-ebd1-4408-bab1-79df895017b6?format=jpeg' },
+    { title: 'ORÁCULO', image: 'https://images.beta.cosmos.so/e5a6c3ed-82ad-4084-9a11-1eccd7bc91aa?format=jpeg' },
+    { title: 'HISTORIA', image: 'https://images.beta.cosmos.so/4d02a1e7-d1f2-4575-86a9-bed243e59132?format=jpeg' },
+    { title: 'DIARIO', image: DEFAULT_PUNK_IMAGE }
+  ];
+
   return (
-    <div className="flex-grow px-6 pb-28 animate-fade-in flex flex-col pt-4">
-      <div className="relative mb-10 transform -rotate-1">
-        <div className="bg-secondary text-accent p-6 border-4 border-black flyer-shadow">
-          <h1 className="font-punk text-4xl tracking-widest uppercase underline decoration-primary decoration-4">
-            El Escritorio del Curador
-          </h1>
-          <p className="font-hand text-lg text-primary mt-2">Panel de Control del Diario</p>
-        </div>
-        <div className="absolute -top-4 -right-4 w-16 h-16 bg-primary rounded-full border-2 border-black flex items-center justify-center text-white font-punk text-xs transform rotate-12">
-          ADMIN
-        </div>
-      </div>
-      
-      <div className="grid gap-8">
-        <section className="bg-white dark:bg-paper-dark border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative rotate-1">
-          <div className="absolute -top-3 left-10 w-20 h-6 tape-effect rotate-1 z-10"></div>
-          <h2 className="font-display text-2xl mb-4 border-b-2 border-secondary pb-2 text-secondary">Editar Narrativas</h2>
-          <p className="font-body text-sm italic text-gray-600 dark:text-gray-400 mb-6">
-            Ajusta los relatos del "Exilio Culinario" que aparecen en el menú principal.
-          </p>
-          
-          <div className="space-y-4">
-            <div className="border-2 border-dashed border-secondary/20 p-4">
-              <span className="font-punk text-xs text-primary">SELECCIONAR CAPÍTULO</span>
-              <div className="flex gap-2 mt-2 overflow-x-auto no-scrollbar pb-2">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map(n => (
-                  <button key={n} className="w-10 h-10 border-2 border-black font-punk flex-shrink-0 hover:bg-primary hover:text-white transition-colors">
-                    {n}
-                  </button>
-                ))}
+    <div className="flex-grow px-4 pb-28 flex flex-col pt-8 max-w-6xl mx-auto w-full animate-fade-in">
+      <h1 className="font-display text-4xl text-primary mb-12 text-center border-b-4 border-primary pb-4 tracking-wider uppercase">
+        Panel de Control
+      </h1>
+
+      <AnimatedGroup
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+        preset="scale"
+      >
+        {adminOptions.map((opt, index) => (
+          <div key={index} className="relative group cursor-pointer">
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 tape-effect rotate-1 z-20 opacity-80 group-hover:opacity-100 transition-opacity"></div>
+            <div className="relative border-4 border-black p-2 bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] transition-all">
+              <img
+                src={opt.image}
+                alt={opt.title}
+                onError={(e) => { e.currentTarget.src = DEFAULT_PUNK_IMAGE; }}
+                className="h-64 w-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500"
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-black/80 p-4 text-center transform translate-y-2 group-hover:translate-y-0 transition-transform">
+                <h3 className="font-display text-2xl text-primary uppercase tracking-widest">{opt.title}</h3>
+                <p className="font-mono text-xs text-white/70 mt-1">EDITAR SECCIÓN</p>
               </div>
             </div>
-            
-            <button className="w-full bg-secondary text-accent font-punk py-3 border-2 border-black shadow-[4px_4px_0px_0px_rgba(230,57,70,1)] hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all">
-              ABRIR EDITOR DE TEXTO
-            </button>
           </div>
-        </section>
-
-        <section className="bg-white dark:bg-paper-dark border-4 border-black p-6 shadow-[8px_8px_0px_0px_rgba(230,57,70,1)] relative -rotate-1">
-          <h2 className="font-display text-2xl mb-4 border-b-2 border-primary pb-2 text-secondary">Ajustes del Oráculo</h2>
-          <div className="space-y-4">
-            <div>
-              <label className="block text-xs font-punk uppercase tracking-widest text-secondary/50 mb-1">
-                Personalidad de la IA (Gemini)
-              </label>
-              <select className="w-full border-2 border-black p-3 font-hand text-lg bg-accent/20 focus:outline-none focus:ring-2 focus:ring-primary">
-                <option>Chef Caótico y Místico</option>
-                <option>Nostálgico del Exilio</option>
-                <option>Crítico Punk Urbano</option>
-                <option>Abuela Sabia del Caribe</option>
-              </select>
-            </div>
-            
-            <div className="flex items-center gap-4 bg-primary/5 p-3 border border-dashed border-secondary/20">
-               <span className="material-symbols-outlined text-primary">psychology</span>
-               <p className="font-body text-[10px] leading-tight font-bold text-secondary">
-                 EL MODELO ACTUAL ESTÁ CONFIGURADO PARA GENERAR RESPUESTAS DE MÁXIMO 60 PALABRAS EN ESPAÑOL.
-               </p>
-            </div>
-          </div>
-        </section>
-      </div>
-      
-      <div className="mt-12 text-center opacity-30 font-mono text-[10px] uppercase tracking-tighter text-secondary">
-        Acceso Terminal v1.0.4 // El acceso no autorizado está estrictamente fomentado con fines artísticos.
-      </div>
+        ))}
+      </AnimatedGroup>
     </div>
   );
 };
