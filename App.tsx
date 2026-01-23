@@ -10,6 +10,7 @@ import MenuView from './components/MenuView';
 import RecommendView from './components/RecommendView';
 import AdminPanel from './components/AdminPanel';
 import ProductDetailView from './components/ProductDetailView';
+import { StoryJourney } from './components/StoryJourney';
 
 const App: React.FC = () => {
   const [view, setView] = useState<AppView>(AppView.COVER);
@@ -64,6 +65,10 @@ const App: React.FC = () => {
 
             {view === AppView.RECOMMEND && (
               <RecommendView />
+            )}
+
+            {view === AppView.JOURNEY && (
+              <StoryJourney />
             )}
 
             {view === AppView.ADMIN && (

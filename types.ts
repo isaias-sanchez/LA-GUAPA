@@ -7,7 +7,8 @@ export enum AppView {
   PROFILE = 'PROFILE',
   RECOMMEND = 'RECOMMEND',
   ADMIN = 'ADMIN',
-  DETAIL = 'DETAIL'
+  DETAIL = 'DETAIL',
+  JOURNEY = 'JOURNEY'
 }
 
 export enum MenuCategory {
