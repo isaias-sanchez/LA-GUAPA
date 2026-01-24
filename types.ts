@@ -45,3 +45,17 @@ export interface RecommendationRequest {
   hungerLevel: 'snack' | 'meal' | 'feast';
   dietary?: string;
 }
+
+export interface HistoryPost {
+  id: string;
+  date: string; // Ej: "Madrid 2021" o "Hoy"
+  title: string;
+  content: string; // Puede soportar HTML básico o ser texto plano
+  imageUrl?: string;
+  mediaType?: 'image' | 'video';
+  reactions: {
+    likes: number;    // "Vibra Guapa"
+    dislikes: number; // "Feedback Real"
+  };
+  isNews?: boolean; // Para diferenciar hitos históricos de noticias actuales
+}

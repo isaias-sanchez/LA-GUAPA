@@ -11,10 +11,12 @@ import RecommendView from './components/RecommendView';
 import AdminPanel from './components/AdminPanel';
 import ProductDetailView from './components/ProductDetailView';
 import { StoryJourney } from './components/StoryJourney';
+import { ConfigProvider, useConfig } from './contexts/ConfigContext';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
   const [view, setView] = useState<AppView>(AppView.COVER);
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const { config } = useConfig();
 
   const handleSelectCategory = (cat: MenuCategory) => {
     setView(AppView.MENU);
@@ -59,7 +61,15 @@ const App: React.FC = () => {
             className="flex-grow flex flex-col"
           >
             {view === AppView.COVER && (
-              <CoverView onEnter={() => setView(AppView.HOME)} />
+              <CoverView
+                onEnter={() => setView(AppView.HOME)}
+                coverTitle={config.coverTitle}
+                stickerText={config.stickerText}
+                ownerText={config.ownerText}
+                manifestoText={config.manifestoText}
+                primaryColor={config.primaryColor}
+                secondaryColor={config.secondaryColor}
+              />
             )}
 
             {view === AppView.HOME && (
@@ -132,6 +142,14 @@ const App: React.FC = () => {
         }
       `}} />
     </div>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <ConfigProvider>
+      <AppContent />
+    </ConfigProvider>
   );
 };
 
