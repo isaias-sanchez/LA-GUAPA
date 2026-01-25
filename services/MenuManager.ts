@@ -40,6 +40,11 @@ class LocalStorageRepository implements IMenuRepository {
         this.items.push(item);
         this.save();
     }
+
+    async delete(id: string): Promise<void> {
+        this.items = this.items.filter(i => i.id !== id);
+        this.save();
+    }
 }
 
 export class MenuManager {
@@ -83,5 +88,7 @@ export class MenuManager {
     }
 }
 
-export const menuRepository = new LocalStorageRepository();
+// export const menuRepository = new LocalStorageRepository();
+import { SupabaseMenuRepository } from './SupabaseMenuRepository';
+export const menuRepository = new SupabaseMenuRepository();
 export const menuManager = new MenuManager(menuRepository);

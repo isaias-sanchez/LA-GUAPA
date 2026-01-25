@@ -22,6 +22,8 @@ export enum MenuCategory {
 
 export interface MenuItem {
   id: string;
+  order?: number; // Visual order in menu
+  sku?: string;   // Internal identifier
   name: string;
   category: MenuCategory;
   chapter: number;
@@ -30,6 +32,10 @@ export interface MenuItem {
   price: string;
   tags?: string[];
   image?: string;
+  isSoldOut?: boolean;
+  isVisible?: boolean;
+  isFeatured?: boolean;
+  allergens?: string[];
 }
 
 export interface ScrapbookElement {

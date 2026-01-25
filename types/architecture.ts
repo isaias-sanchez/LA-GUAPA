@@ -5,7 +5,7 @@ export interface ChangeRequest {
   targetId: string;
   field: keyof MenuItem;
   newValue: any;
-  intent?: string; 
+  intent?: string;
 }
 
 // CAPA 2: EJECUCIÓN (Contrato del Repositorio)
@@ -13,6 +13,7 @@ export interface IMenuRepository {
   getAll(): Promise<MenuItem[]>;
   update(id: string, item: Partial<MenuItem>): Promise<void>;
   create(item: MenuItem): Promise<void>;
+  delete(id: string): Promise<void>;
 }
 
 // CAPA 3: GOBERNANZA

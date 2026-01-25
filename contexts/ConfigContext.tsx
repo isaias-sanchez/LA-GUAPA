@@ -16,6 +16,15 @@ export interface AppConfig {
     // History Settings
     historyPosts: HistoryPost[];
     historyLineColor: string;
+
+    // Oracle Settings
+    oracleSystemPrompt: string;
+    oracleSlang: string[];
+    oracleMoods: string[];
+    oracleMysticism: number; // 0-100
+    oracleSyncInventory: boolean;
+    oracleSecrets: string[];
+    oracleAuraColor: string;
 }
 
 // Default configuration values
@@ -57,7 +66,16 @@ const DEFAULT_CONFIG: AppConfig = {
             reactions: { likes: 256, dislikes: 0 },
             isNews: false
         }
-    ]
+    ],
+
+    // Oracle Defaults
+    oracleSystemPrompt: "Eres un bartender barranquillero místico. Hablas corto, con jerga costeña pero elegante. Sabes secretos de la ciudad.",
+    oracleSlang: ["bacán", "frasquito", "bollo", "llave", "cuadro", "cipote"],
+    oracleMoods: ["Feliz", "Guayabo", "Nostálgico", "Con Sed", "Aventurero"],
+    oracleMysticism: 50,
+    oracleSyncInventory: true,
+    oracleSecrets: ["El chef odia el ketchup.", "Las papas saben mejor los viernes."],
+    oracleAuraColor: "#8A2BE2"
 };
 
 interface ConfigContextType {

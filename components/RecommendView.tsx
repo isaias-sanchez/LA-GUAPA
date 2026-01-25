@@ -2,7 +2,10 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { getChefRecommendation } from '../services/geminiService';
-import { RecommendationRequest } from '../types';
+import { RecommendationRequest, MenuItem } from '../types';
+import { SupabaseMenuRepository } from '../services/SupabaseMenuRepository';
+
+const menuRepository = new SupabaseMenuRepository();
 
 const RecommendView: React.FC = () => {
   const [mood, setMood] = useState('');
@@ -14,8 +17,19 @@ const RecommendView: React.FC = () => {
     if (!mood) return;
     setLoading(true);
     setRecommendation(null);
-    const result = await getChefRecommendation({ mood, hungerLevel: hunger });
-    setRecommendation(result);
+
+    // Fetch live data from Supabase
+    try {
+      const allItems = await menuRepository.getAll();
+      // Filter out hidden or sold out items
+      const availableItems = allItems.filter(i => i.isVisible && !i.isSoldOut);
+
+      const result = await getChefRecommendation({ mood, hungerLevel: hunger }, availableItems);
+      setRecommendation(result);
+    } catch (e) {
+      console.error("Error fetching menu for oracle", e);
+      setRecommendation("El oráculo está confundido con la señal... intenta de nuevo.");
+    }
     setLoading(false);
   };
 
@@ -39,8 +53,8 @@ const RecommendView: React.FC = () => {
       <div className="bg-white dark:bg-paper-dark border-2 border-black p-6 space-y-6 relative">
         <div className="space-y-2">
           <label className="font-display text-xl block text-secondary">¿Cómo está el alma hoy?</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             placeholder="ej: Caótico, nostálgico, con sed..."
             className="w-full border-2 border-black bg-accent/30 p-3 font-hand text-lg focus:ring-primary focus:border-primary outline-none"
             value={mood}
@@ -67,7 +81,7 @@ const RecommendView: React.FC = () => {
           </div>
         </div>
 
-        <button 
+        <button
           onClick={handleRecommend}
           disabled={loading || !mood}
           className="w-full bg-secondary text-accent font-punk text-2xl py-4 hover:bg-primary hover:text-white transition-colors disabled:opacity-50 border-2 border-black shadow-[4px_4px_0px_0px_rgba(230,57,70,1)]"
@@ -76,36 +90,36 @@ const RecommendView: React.FC = () => {
         </button>
 
         {recommendation && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
             animate={{ opacity: 1, scale: 1, rotate: 1 }}
             className="mt-8 relative transform animate-fade-in"
           >
-             <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 tape-effect rotate-1 z-20"></div>
-             <div className="bg-primary/5 border-2 border-dashed border-secondary p-6">
-                <p className="font-script text-2xl leading-tight text-secondary dark:text-white mb-6">
-                  "{recommendation}"
-                </p>
-                <div className="flex items-center justify-between">
-                   <div className="flex items-center gap-2">
-                      <span className="material-icons-round text-primary text-sm">auto_awesome</span>
-                      <span className="font-punk text-xs text-primary uppercase tracking-widest">Profecía del Chef</span>
-                   </div>
+            <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-24 h-6 tape-effect rotate-1 z-20"></div>
+            <div className="bg-primary/5 border-2 border-dashed border-secondary p-6">
+              <p className="font-script text-2xl leading-tight text-secondary dark:text-white mb-6">
+                "{recommendation}"
+              </p>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="material-icons-round text-primary text-sm">auto_awesome</span>
+                  <span className="font-punk text-xs text-primary uppercase tracking-widest">Profecía del Chef</span>
                 </div>
+              </div>
 
-                <div className="flex flex-col items-center gap-4 mt-10">
-                  <button 
-                    onClick={handleShare}
-                    className="bg-primary text-white font-punk text-xl px-8 py-3 shadow-heavy hover:scale-105 transition-transform flex items-center gap-2 border-2 border-black"
-                  >
-                    <span className="material-symbols-outlined text-lg">share</span>
-                    COMPARTIR MI DESTINO
-                  </button>
-                  <p className="font-hand text-sm text-gray-500 italic">
-                    "Tu suerte ha sido echada... hazla eterna."
-                  </p>
-                </div>
-             </div>
+              <div className="flex flex-col items-center gap-4 mt-10">
+                <button
+                  onClick={handleShare}
+                  className="bg-primary text-white font-punk text-xl px-8 py-3 shadow-heavy hover:scale-105 transition-transform flex items-center gap-2 border-2 border-black"
+                >
+                  <span className="material-symbols-outlined text-lg">share</span>
+                  COMPARTIR MI DESTINO
+                </button>
+                <p className="font-hand text-sm text-gray-500 italic">
+                  "Tu suerte ha sido echada... hazla eterna."
+                </p>
+              </div>
+            </div>
           </motion.div>
         )}
       </div>

@@ -2,8 +2,11 @@ import { supabase } from '../lib/supabase';
 import React, { useState, useEffect } from 'react';
 import {
   Home, BookOpen, Clock, Star, Book,
-  Type, Palette, Maximize, Save, ArrowLeft, PlusCircle, Trash2, Image as ImageIcon, Film, Upload
+  Type, Palette, Maximize, Save, ArrowLeft, PlusCircle, Trash2, Image as ImageIcon, Film, Upload,
+  Sparkles, Brain, List, ToggleLeft, ToggleRight, X, User, ShoppingBag, Eye, EyeOff, Lock
 } from 'lucide-react';
+import { menuRepository } from '../services/MenuManager'; // Import repository
+import { MenuItem, MenuCategory } from '../types';
 import { AnimatedGroup } from './ui/AnimatedGroup';
 import CoverView from './CoverView';
 import { useConfig } from '../contexts/ConfigContext';
@@ -20,6 +23,12 @@ type SectionConfig = {
 };
 
 const INITIAL_SECTIONS: SectionConfig[] = [
+  {
+    id: 'products',
+    title: 'PRODUCTOS',
+    icon: <ShoppingBag size={32} />,
+    settings: {}
+  },
   {
     id: 'home',
     title: 'PORTADA',
@@ -42,7 +51,7 @@ const INITIAL_SECTIONS: SectionConfig[] = [
   {
     id: 'recommend',
     title: 'ORÁCULO',
-    icon: <Star size={32} />,
+    icon: <Sparkles size={32} />,
     settings: {
       recommendationText: { label: 'Texto Sugerencia', type: 'text', value: 'Hoy te recomendamos...' },
       animationSpeed: { label: 'Velocidad Animación', type: 'number', value: 1.5 },
@@ -102,6 +111,65 @@ const AdminPanel: React.FC = () => {
   const [newPostMediaUrl, setNewPostMediaUrl] = useState('');
   const [newPostMediaType, setNewPostMediaType] = useState<'image' | 'video'>('image');
   const [isUploading, setIsUploading] = useState(false);
+
+  // Local State for Oracle Config (to edit arrays easily)
+  const [tempOracleConfig, setTempOracleConfig] = useState({
+    systemPrompt: '',
+    slang: [] as string[],
+    moods: [] as string[],
+    mysticism: 50,
+    syncInventory: true,
+    secrets: [] as string[],
+    auraColor: ''
+  });
+
+  // Products State
+  const [products, setProducts] = useState<MenuItem[]>([]);
+  const [editingProduct, setEditingProduct] = useState<MenuItem | null>(null);
+  const [isProductLoading, setIsProductLoading] = useState(false);
+
+  // Load products when section is active
+  useEffect(() => {
+    if (activeSection === 'products') {
+      loadProducts();
+    }
+  }, [activeSection]);
+
+  const loadProducts = async () => {
+    setIsProductLoading(true);
+    const data = await menuRepository.getAll();
+    setProducts(data);
+    setIsProductLoading(false);
+  };
+
+  // Generic Upload for Products (different bucket or same?) Same 'media' bucket is fine.
+  const uploadProductImage = async (file: File) => {
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `product-${Date.now()}.${fileExt}`;
+      const { error: uploadError } = await supabase.storage.from('media').upload(fileName, file);
+      if (uploadError) throw uploadError;
+      const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(fileName);
+      return publicUrl;
+    } catch (e) {
+      console.error(e);
+      alert("Error subiendo imagen");
+      return null;
+    }
+  };
+
+  // Sync Global to Local (Oracle)
+  useEffect(() => {
+    setTempOracleConfig({
+      systemPrompt: config.oracleSystemPrompt || '',
+      slang: config.oracleSlang || [],
+      moods: config.oracleMoods || [],
+      mysticism: config.oracleMysticism || 50,
+      syncInventory: config.oracleSyncInventory ?? true,
+      secrets: config.oracleSecrets || [],
+      auraColor: config.oracleAuraColor || '#8A2BE2'
+    });
+  }, [config]);
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -184,6 +252,17 @@ const AdminPanel: React.FC = () => {
           isPublic: coverSettings.isPublic.value,
         });
       }
+    } else if (sectionId === 'recommend') {
+      // Oracle Settings
+      updateConfig({
+        oracleSystemPrompt: tempOracleConfig.systemPrompt,
+        oracleSlang: tempOracleConfig.slang,
+        oracleMoods: tempOracleConfig.moods,
+        oracleMysticism: tempOracleConfig.mysticism,
+        oracleSyncInventory: tempOracleConfig.syncInventory,
+        oracleSecrets: tempOracleConfig.secrets,
+        oracleAuraColor: tempOracleConfig.auraColor
+      });
     } else if (sectionId === 'story') {
       // For story, only introText and lineColor are standard settings
       const storySettings = sections.find(s => s.id === 'story')?.settings;
@@ -266,6 +345,443 @@ const AdminPanel: React.FC = () => {
         );
       default: return null;
     }
+  };
+
+  const renderOracleManager = () => {
+    const addToList = (key: 'slang' | 'moods' | 'secrets', value: string) => {
+      if (!value) return;
+      setTempOracleConfig(prev => ({ ...prev, [key]: [...prev[key], value] }));
+    };
+
+    const removeFromList = (key: 'slang' | 'moods' | 'secrets', index: number) => {
+      setTempOracleConfig(prev => ({ ...prev, [key]: prev[key].filter((_, i) => i !== index) }));
+    };
+
+    return (
+      <div className="space-y-8 animate-fade-in text-black">
+        {/* 1. PERSONALIDAD */}
+        <section className="border-4 border-black p-4 bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h3 className="font-punk text-xl mb-4 flex items-center gap-2 text-primary">
+            <Brain size={24} /> PERSONALIDAD
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <label className="font-bold text-xs uppercase text-gray-600 mb-1 block">Voz del Oráculo (System Prompt)</label>
+              <textarea
+                value={tempOracleConfig.systemPrompt}
+                onChange={(e) => setTempOracleConfig(prev => ({ ...prev, systemPrompt: e.target.value }))}
+                className="w-full p-2 border-2 border-black font-hand text-sm h-24 text-black bg-white"
+                placeholder="Define cómo debe hablar la IA..."
+              />
+            </div>
+            <div>
+              <label className="font-bold text-xs uppercase text-gray-600 mb-1 block">Diccionario de Jerga</label>
+              <div className="flex gap-2 mb-2">
+                <input id="newSlang" type="text" className="flex-1 p-1 border-2 border-black font-hand text-sm text-black bg-white" placeholder="Nueva palabra..."
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      addToList('slang', (e.target as HTMLInputElement).value);
+                      (e.target as HTMLInputElement).value = '';
+                    }
+                  }}
+                />
+                <button className="bg-black text-white px-3 font-bold" onClick={() => {
+                  const el = document.getElementById('newSlang') as HTMLInputElement;
+                  addToList('slang', el.value);
+                  el.value = '';
+                }}>+</button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {tempOracleConfig.slang.map((word, i) => (
+                  <span key={i} className="bg-yellow-200 text-black border-2 border-black px-2 py-1 font-hand text-xs flex items-center gap-1">
+                    {word}
+                    <button onClick={() => removeFromList('slang', i)}><X size={12} /></button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 2. EXPERIENCIA */}
+        <section className="border-4 border-black p-4 bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h3 className="font-punk text-xl mb-4 flex items-center gap-2 text-primary">
+            <Sparkles size={24} /> EXPERIENCIA
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <label className="font-bold text-xs uppercase text-gray-600 mb-1 block">Estados de Ánimo (Botones)</label>
+              <div className="flex gap-2 mb-2">
+                <input id="newMood" type="text" className="flex-1 p-1 border-2 border-black font-hand text-sm text-black bg-white" placeholder="Ej: Con Sed..."
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      addToList('moods', (e.target as HTMLInputElement).value);
+                      (e.target as HTMLInputElement).value = '';
+                    }
+                  }}
+                />
+                <button className="bg-black text-white px-3 font-bold" onClick={() => {
+                  const el = document.getElementById('newMood') as HTMLInputElement;
+                  addToList('moods', el.value);
+                  el.value = '';
+                }}>+</button>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {tempOracleConfig.moods.map((mood, i) => (
+                  <span key={i} className="bg-purple-200 text-black border-2 border-black px-2 py-1 font-hand text-xs flex items-center gap-1">
+                    {mood}
+                    <button onClick={() => removeFromList('moods', i)}><X size={12} /></button>
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="font-bold text-xs uppercase text-gray-600 mb-1 block flex justify-between">
+                <span>Nivel de Misticismo</span>
+                <span className="text-black">{tempOracleConfig.mysticism}%</span>
+              </label>
+              <input
+                type="range"
+                min="0" max="100"
+                value={tempOracleConfig.mysticism}
+                onChange={(e) => setTempOracleConfig(prev => ({ ...prev, mysticism: parseInt(e.target.value) }))}
+                className="w-full accent-primary h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer border-2 border-black"
+              />
+              <div className="flex justify-between text-xs font-mono text-gray-400 mt-1">
+                <span>DIRECTO</span>
+                <span>MUY MÍSTICO</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* 3. LÓGICA & SECRETOS */}
+        <section className="border-4 border-black p-4 bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h3 className="font-punk text-xl mb-4 flex items-center gap-2 text-primary">
+            <List size={24} /> LÓGICA
+          </h3>
+          <div className="flex items-center justify-between mb-4 border-b-2 border-dashed border-gray-300 pb-4">
+            <label className="font-bold text-sm uppercase text-black">Sincronizar Inventario</label>
+            <button
+              onClick={() => setTempOracleConfig(prev => ({ ...prev, syncInventory: !prev.syncInventory }))}
+              className={`flex items-center gap-2 px-3 py-1 border-2 border-black transition-colors ${tempOracleConfig.syncInventory ? 'bg-green-400' : 'bg-gray-200'}`}
+            >
+              {tempOracleConfig.syncInventory ? <ToggleRight size={24} className="text-black" /> : <ToggleLeft size={24} className="text-gray-500" />}
+              <span className="font-mono text-xs text-black">{tempOracleConfig.syncInventory ? 'ON' : 'OFF'}</span>
+            </button>
+          </div>
+          <div>
+            <label className="font-bold text-xs uppercase text-gray-600 mb-1 block">Secretos del Chef</label>
+            <div className="flex gap-2 mb-2">
+              <input id="newSecret" type="text" className="flex-1 p-1 border-2 border-black font-hand text-sm text-black bg-white" placeholder="Ej: La salsa tiene ron..."
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    addToList('secrets', (e.target as HTMLInputElement).value);
+                    (e.target as HTMLInputElement).value = '';
+                  }
+                }}
+              />
+              <button className="bg-black text-white px-3 font-bold" onClick={() => {
+                const el = document.getElementById('newSecret') as HTMLInputElement;
+                addToList('secrets', el.value);
+                el.value = '';
+              }}>+</button>
+            </div>
+            <div className="space-y-1">
+              {tempOracleConfig.secrets.map((secret, i) => (
+                <div key={i} className="bg-gray-100 border-b border-black/10 p-2 font-hand text-xs flex justify-between items-center text-black">
+                  <span>"{secret}"</span>
+                  <button onClick={() => removeFromList('secrets', i)} className="text-red-500 hover:text-red-700"><Trash2 size={12} /></button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* 4. AURA */}
+        <section className="border-4 border-black p-4 bg-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)]">
+          <h3 className="font-punk text-xl mb-4 flex items-center gap-2 text-primary">
+            <Palette size={24} /> VISUAL
+          </h3>
+          <div className="flex items-center gap-4">
+            <div
+              className="w-16 h-16 rounded-full border-4 border-black shadow-lg transition-colors duration-500"
+              style={{ backgroundColor: tempOracleConfig.auraColor, boxShadow: `0 0 20px ${tempOracleConfig.auraColor}` }}
+            />
+            <div className="flex-1">
+              <label className="font-bold text-xs uppercase text-gray-600 mb-1 block">Color del Aura</label>
+              <input
+                type="color"
+                value={tempOracleConfig.auraColor}
+                onChange={(e) => setTempOracleConfig(prev => ({ ...prev, auraColor: e.target.value }))}
+                className="w-full h-10 border-2 border-black cursor-pointer bg-white"
+              />
+              <span className="font-mono text-xs text-black">{tempOracleConfig.auraColor}</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  };
+
+  const renderProductManager = () => {
+    if (editingProduct) {
+      return (
+        <div className="space-y-6 animate-fade-in">
+          <div className="flex justify-between items-center mb-4">
+            <button onClick={() => setEditingProduct(null)} className="flex items-center gap-2 font-punk text-lg hover:underline"><ArrowLeft /> VOLVER LISTA</button>
+            <h3 className="font-punk text-xl uppercase bg-black text-white px-2">{editingProduct.id ? 'EDITAR' : 'NUEVO'} PLATO</h3>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* IZQUIERDA: DATOS BÁSICOS */}
+            {/* IZQUIERDA: DATOS BÁSICOS & NARRATIVA */}
+            <div className="space-y-6">
+              {/* BLOQUE IDENTIDAD */}
+              <div className="space-y-4 border-2 border-black p-4 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <h4 className="font-punk text-lg border-b-2 border-black mb-2">IDENTIDAD</h4>
+                <div className="flex gap-4">
+                  <div className="w-1/3">
+                    <label className="font-bold text-xs uppercase text-gray-400">SKU / ID</label>
+                    <input className="w-full border-b-2 border-black font-mono text-lg p-1 bg-transparent"
+                      placeholder="BURG-01"
+                      value={editingProduct.sku || ''} onChange={e => setEditingProduct({ ...editingProduct, sku: e.target.value })} />
+                  </div>
+                  <div className="flex-1">
+                    <label className="font-bold text-xs uppercase text-gray-400">Nombre</label>
+                    <input className="w-full border-b-2 border-black font-display text-2xl p-1 bg-transparent placeholder-gray-300"
+                      placeholder="Nombre del Plato"
+                      value={editingProduct.name} onChange={e => setEditingProduct({ ...editingProduct, name: e.target.value })} />
+                  </div>
+                </div>
+              </div>
+
+              {/* BLOQUE COMERCIAL */}
+              <div className="space-y-4 border-2 border-black p-4 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <h4 className="font-punk text-lg border-b-2 border-black mb-2">COMERCIAL</h4>
+                <div className="flex gap-4">
+                  <div className="flex-1">
+                    <label className="font-bold text-xs uppercase text-gray-400">Precio</label>
+                    <input className="w-full border-b-2 border-black font-hand text-xl p-1 bg-transparent"
+                      placeholder="34K"
+                      value={editingProduct.price} onChange={e => setEditingProduct({ ...editingProduct, price: e.target.value })} />
+                  </div>
+                  <div className="flex-1">
+                    <label className="font-bold text-xs uppercase text-gray-400">Categoría</label>
+                    <select className="w-full border-b-2 border-black font-hand text-lg p-1 bg-transparent"
+                      value={editingProduct.category} onChange={e => setEditingProduct({ ...editingProduct, category: e.target.value as any })}>
+                      {Object.values(MenuCategory).map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* BLOQUE DETALLES */}
+              <div className="space-y-4 border-2 border-black p-4 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <h4 className="font-punk text-lg border-b-2 border-black mb-2">DETALLES</h4>
+                <div>
+                  <label className="font-bold text-xs uppercase text-gray-400">Descripción (Ingredientes)</label>
+                  <textarea className="w-full border-2 border-black font-hand text-sm p-2 h-20"
+                    value={editingProduct.description} onChange={e => setEditingProduct({ ...editingProduct, description: e.target.value })} />
+                </div>
+                <div className="flex gap-4">
+                  <div className="w-1/4">
+                    <label className="font-bold text-xs uppercase text-gray-400">Capítulo</label>
+                    <input type="number" className="w-full border-b-2 border-black font-mono text-lg p-1"
+                      value={editingProduct.chapter} onChange={e => setEditingProduct({ ...editingProduct, chapter: parseInt(e.target.value) || 1 })} />
+                  </div>
+                  <div className="flex-1">
+                    <label className="font-bold text-xs uppercase text-gray-400">Etiquetas (Separadas por comas)</label>
+                    <input className="w-full border-b-2 border-black font-hand text-sm p-1"
+                      placeholder="Picante, Veggie..."
+                      value={editingProduct.tags?.join(', ') || ''}
+                      onChange={e => setEditingProduct({ ...editingProduct, tags: e.target.value.split(',').map(t => t.trim()) })} />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* DERECHA: MULTIMEDIA & MAGIA */}
+            <div className="space-y-6">
+              {/* IMAGEN */}
+              <div className="relative h-48 bg-gray-100 border-2 border-dashed border-gray-400 flex flex-col items-center justify-center overflow-hidden cursor-pointer group hover:bg-gray-50 transition-colors">
+                <input type="file" className="absolute inset-0 opacity-0 cursor-pointer z-20" onChange={async (e) => {
+                  const f = e.target.files?.[0];
+                  if (f) {
+                    const url = await uploadProductImage(f);
+                    if (url) setEditingProduct({ ...editingProduct, image: url });
+                  }
+                }} />
+                {editingProduct.image ? (
+                  <div className="w-full h-full relative">
+                    <img src={editingProduct.image} className="absolute inset-0 w-full h-full object-cover" />
+                    <div className="absolute bottom-0 left-0 bg-black text-white text-[10px] px-2 py-1 font-bold opacity-0 group-hover:opacity-100 transition-opacity">CAMBIAR FOTO</div>
+                  </div>
+                ) : (
+                  <div className="text-center text-gray-400 group-hover:text-black">
+                    <Upload className="mx-auto mb-1" />
+                    <span className="text-xs font-bold">ARRASRA O CLIC</span>
+                  </div>
+                )}
+              </div>
+
+              {/* HISTORIA IA */}
+              <div className="border-2 border-black p-4 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="font-bold text-xs uppercase text-gray-400">Historia del Exilio</label>
+                  <button className="text-[10px] bg-purple-600 text-white px-2 py-0.5 rounded flex items-center gap-1 hover:bg-purple-700 shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-y-[2px] transition-all"
+                    onClick={async () => {
+                      setEditingProduct({ ...editingProduct, history: `[IA] En las calles de... (Generando para ${editingProduct.name})...` });
+                    }}>
+                    <Brain size={12} /> GENERAR CON IA
+                  </button>
+                </div>
+                <textarea className="w-full border-2 border-black font-hand text-sm p-2 h-24 italic resize-none"
+                  value={editingProduct.history} onChange={e => setEditingProduct({ ...editingProduct, history: e.target.value })} />
+              </div>
+
+              {/* EXTRAS */}
+              <div className="border-2 border-black p-4 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] space-y-4">
+                <h4 className="font-punk text-lg border-b-2 border-black mb-2">EXTRAS</h4>
+                <div>
+                  <label className="font-bold text-xs uppercase text-gray-400 mb-1 block">Características / Alérgenos</label>
+                  <input className="w-full border-b-2 border-black font-hand text-sm p-1"
+                    placeholder="Sin Gluten, Vegano..."
+                    value={editingProduct.allergens?.join(', ') || ''}
+                    onChange={e => setEditingProduct({ ...editingProduct, allergens: e.target.value.split(',').map(t => t.trim()) })} />
+                </div>
+
+                <label className="flex items-center gap-2 cursor-pointer select-none bg-yellow-50 p-2 border border-black/10 rounded">
+                  <div className={`w-5 h-5 border-2 border-black flex items-center justify-center transition-colors ${editingProduct.isFeatured ? 'bg-yellow-400' : 'bg-white'}`}
+                    onClick={() => setEditingProduct({ ...editingProduct, isFeatured: !editingProduct.isFeatured })}>
+                    {editingProduct.isFeatured && <Star size={12} className="text-black" />}
+                  </div>
+                  <span className="font-bold text-xs uppercase">¿Plato Destacado? (Portada)</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* OPERACIONES */}
+          <div className="border-t-2 border-black pt-4 flex justify-between items-center sticky bottom-0 bg-white/95 backdrop-blur py-4 z-10">
+            <div className="flex gap-4">
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <div className={`w-5 h-5 border-2 border-black ${editingProduct.isSoldOut ? 'bg-red-500' : 'bg-white'}`}
+                  onClick={() => setEditingProduct({ ...editingProduct, isSoldOut: !editingProduct.isSoldOut })} />
+                <span className="font-bold text-xs">AGOTADO</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer select-none">
+                <div className={`w-5 h-5 border-2 border-black ${!editingProduct.isVisible ? 'bg-gray-400' : 'bg-green-500'}`}
+                  onClick={() => setEditingProduct({ ...editingProduct, isVisible: !editingProduct.isVisible })} />
+                <span className="font-bold text-xs">{editingProduct.isVisible ? 'VISIBLE' : 'OCULTO'}</span>
+              </label>
+            </div>
+
+            <button className="bg-primary text-white font-punk text-xl px-8 py-2 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-none transition-all flex items-center gap-2"
+              onClick={async () => {
+                if (editingProduct.id === 'new') {
+                  const newId = Date.now().toString();
+                  await menuRepository.create({ ...editingProduct, id: newId });
+                } else {
+                  await menuRepository.update(editingProduct.id, editingProduct);
+                }
+                setEditingProduct(null);
+                loadProducts();
+              }}>
+              <Save size={20} /> GUARDAR
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center bg-gray-100 p-2 border-2 border-black">
+          <span className="font-bold font-mono text-xs">{products.length} PRODUCTOS EN CARTA</span>
+          <button className="bg-black text-white px-4 py-1 font-punk text-sm flex items-center gap-2"
+            onClick={() => setEditingProduct({
+              id: 'new', name: '', category: MenuCategory.BURGERS, price: '',
+              description: '', history: '', chapter: 1, tags: [],
+              isVisible: true, isSoldOut: false, isFeatured: false, allergens: [], sku: '', order: products.length
+            })}>
+            <PlusCircle size={16} /> NUEVO PLATO
+          </button>
+        </div>
+
+        <div className="space-y-2 h-[600px] overflow-y-auto pr-2 custom-scrollbar">
+          {products.map((p, index) => (
+            <div key={p.id} className={`flex justify-between items-center p-3 border-2 border-black bg-white hover:bg-yellow-50 transition-colors group ${!p.isVisible ? 'opacity-50' : ''}`}>
+              <div className="flex items-center gap-4">
+                {/* ORDENAMIENTO BASICO (MVP) */}
+                <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button
+                    disabled={index === 0}
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      if (index > 0) {
+                        const newProducts = [...products];
+                        // Swap
+                        [newProducts[index - 1], newProducts[index]] = [newProducts[index], newProducts[index - 1]];
+                        // Optimistic update
+                        setProducts(newProducts);
+                        // Persist Order
+                        await Promise.all(newProducts.map((p, idx) => menuRepository.update(p.id, { order: idx })));
+                        loadProducts();
+                      }
+                    }}
+                    className="hover:text-primary disabled:opacity-30"><ChevronUp size={14} /></button>
+                  <button
+                    disabled={index === products.length - 1}
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      if (index < products.length - 1) {
+                        const newProducts = [...products];
+                        const temp = newProducts[index];
+                        newProducts[index] = newProducts[index + 1];
+                        newProducts[index + 1] = temp;
+                        setProducts(newProducts);
+                        await Promise.all(newProducts.map((p, idx) => menuRepository.update(p.id, { order: idx })));
+                        loadProducts();
+                      }
+                    }}
+                    className="hover:text-primary disabled:opacity-30"><ChevronDown size={14} /></button>
+                </div>
+
+                <img src={p.image} className="w-12 h-12 object-cover border border-black bg-gray-200" />
+                <div>
+                  <h4 className="font-bold font-display uppercase leading-none flex items-center gap-2">
+                    {p.name}
+                    {p.isSoldOut && <span className="text-red-500 text-[10px] ml-2">● AGOTADO</span>}
+                    {p.isFeatured && <Star size={12} className="text-yellow-500 fill-yellow-500" />}
+                  </h4>
+                  <div className="flex gap-2 text-xs text-gray-500 font-mono">
+                    <span>{p.sku || '---'}</span>
+                    <span>•</span>
+                    <span>{p.category}</span>
+                    <span>•</span>
+                    <span>{p.price}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button title="Duplicar" onClick={() => setEditingProduct({ ...p, id: 'new', name: `${p.name} (Copia)`, sku: `${p.sku}-CP` })}><Sparkles size={16} className="text-purple-600" /></button>
+                <button title="Destacar" onClick={async () => { await menuRepository.update(p.id, { isFeatured: !p.isFeatured }); loadProducts(); }}>
+                  <Star size={16} className={p.isFeatured ? "fill-yellow-400 text-yellow-400" : "text-gray-400"} />
+                </button>
+                <button title="Ocultar" onClick={async () => { await menuRepository.update(p.id, { isVisible: !p.isVisible }); loadProducts(); }}>
+                  {p.isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
+                </button>
+                <button onClick={() => setEditingProduct(p)} className="bg-black text-white px-2 py-0.5 font-bold text-xs">EDITAR</button>
+                <button title="Eliminar" className="text-red-500 hover:bg-red-100 p-1" onClick={async () => { if (confirm('¿Borrar?')) { await menuRepository.delete(p.id); loadProducts(); } }}>
+                  <Trash2 size={16} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   };
 
   const renderStoryManager = () => (
@@ -431,6 +947,8 @@ const AdminPanel: React.FC = () => {
           <div className="flex-1 bg-white border-4 border-black p-6 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] order-2 lg:order-1">
             {activeSection === 'story' ? (
               renderStoryManager()
+            ) : activeSection === 'recommend' ? (
+              renderOracleManager()
             ) : (
               <>
                 <h3 className="font-punk text-xl mb-6 border-b-2 border-black pb-2 text-black">Parámetros</h3>

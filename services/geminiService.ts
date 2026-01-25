@@ -3,11 +3,14 @@ import { MenuItem, RecommendationRequest } from "../types";
 import { MENU_ITEMS } from "../constants";
 
 // Corrected initialization using process.env.API_KEY directly as per guidelines
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.VITE_API_KEY || "AIzaSyD5CokJry_XXsFkFZGM2sV-HtEsHtCRilY"; // Fallback just in case
+const ai = new GoogleGenAI({ apiKey });
 
-export const getChefRecommendation = async (req: RecommendationRequest): Promise<string> => {
-  const menuStr = MENU_ITEMS.map(i => `${i.name} (${i.category}): ${i.description}`).join('\n');
-  
+export const getChefRecommendation = async (req: RecommendationRequest, availableMenu: MenuItem[]): Promise<string> => {
+  // Use provided menu or fallback to constant if empty (though logic should ensure we pass real data)
+  const itemsToConsider = availableMenu.length > 0 ? availableMenu : MENU_ITEMS;
+  const menuStr = itemsToConsider.map(i => `${i.name} (${i.category}): ${i.description}`).join('\n');
+
   const prompt = `Eres el caótico pero brillante chef-artista de "La Guapa".
   Un usuario quiere una recomendación.
   Estado de ánimo: ${req.mood}
