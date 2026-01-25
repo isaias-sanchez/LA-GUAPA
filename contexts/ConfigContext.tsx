@@ -17,6 +17,14 @@ export interface AppConfig {
     historyPosts: HistoryPost[];
     historyLineColor: string;
 
+    // Home Settings
+    homeHeadline: string;
+    homeSubheadline: string;
+
+    // Menu Settings
+    menuFontFamily: string;
+    menuPriceColor: string;
+
     // Oracle Settings
     oracleSystemPrompt: string;
     oracleSlang: string[];
@@ -67,6 +75,12 @@ const DEFAULT_CONFIG: AppConfig = {
             isNews: false
         }
     ],
+
+    // Home & Menu Defaults
+    homeHeadline: "LA GUAPA",
+    homeSubheadline: "Fanzine & Food",
+    menuFontFamily: "Punk",
+    menuPriceColor: "#000000",
 
     // Oracle Defaults
     oracleSystemPrompt: "Eres un bartender barranquillero místico. Hablas corto, con jerga costeña pero elegante. Sabes secretos de la ciudad.",

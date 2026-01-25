@@ -14,11 +14,16 @@ const categoryNames: Record<MenuCategory, string> = {
   [MenuCategory.RESTOBAR]: "Memorias de Barra"
 };
 
+import { useConfig } from '../contexts/ConfigContext';
+
 interface MenuViewProps {
   onSelectItem?: (item: MenuItem) => void;
 }
 
 const MenuView: React.FC<MenuViewProps> = ({ onSelectItem }) => {
+  const { config } = useConfig();
+  const fontClass = config.menuFontFamily === 'Sans' ? 'font-sans' : config.menuFontFamily === 'Serif' ? 'font-serif' : 'font-display';
+
   const categories = Object.keys(categoryNames) as MenuCategory[];
   const [activeCategory, setActiveCategory] = useState<MenuCategory>(MenuCategory.BURGERS);
   const [items, setItems] = useState<MenuItem[]>([]);
@@ -31,7 +36,7 @@ const MenuView: React.FC<MenuViewProps> = ({ onSelectItem }) => {
     loadItems();
   }, []);
 
-  const filteredItems = items.filter(item => item.category === activeCategory);
+  const filteredItems = items.filter(item => item.category === activeCategory && item.isVisible !== false);
 
   const memoizedNotes = useMemo(() => {
     return DIARIO_NOTES.map(note => ({
@@ -126,12 +131,15 @@ const MenuView: React.FC<MenuViewProps> = ({ onSelectItem }) => {
                         CAPÍTULO {item.chapter}
                       </span>
                     </div>
-                    <h3 className="font-display text-3xl group-hover:text-primary transition-colors leading-tight text-dark">
+                    <h3 className={`${fontClass} text-3xl group-hover:text-primary transition-colors leading-tight text-dark`}>
                       {item.name}
                     </h3>
                   </div>
                   <div className="flex flex-col items-end">
-                    <span className="font-hand text-lg text-gray-400 opacity-70 rotate-3 transition-opacity group-hover:opacity-100">
+                    <span
+                      className="font-hand text-lg opacity-70 rotate-3 transition-opacity group-hover:opacity-100"
+                      style={{ color: config.menuPriceColor }}
+                    >
                       {item.price}
                     </span>
                     <span className="text-[8px] font-punk text-gray-300 uppercase tracking-tighter">Anotación del autor</span>

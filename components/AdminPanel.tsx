@@ -3,9 +3,9 @@ import React, { useState, useEffect } from 'react';
 import {
   Home, BookOpen, Clock, Star, Book,
   Type, Palette, Maximize, Save, ArrowLeft, PlusCircle, Trash2, Image as ImageIcon, Film, Upload,
-  Sparkles, Brain, List, ToggleLeft, ToggleRight, X, User, ShoppingBag, Eye, EyeOff, Lock
+  Sparkles, Brain, List, ToggleLeft, ToggleRight, X, User, ShoppingBag, Eye, EyeOff, Lock, ChevronUp, ChevronDown
 } from 'lucide-react';
-import { menuRepository } from '../services/MenuManager'; // Import repository
+import { menuManager } from '../services/MenuManager'; // Import manager instance
 import { MenuItem, MenuCategory } from '../types';
 import { AnimatedGroup } from './ui/AnimatedGroup';
 import CoverView from './CoverView';
@@ -137,7 +137,7 @@ const AdminPanel: React.FC = () => {
 
   const loadProducts = async () => {
     setIsProductLoading(true);
-    const data = await menuRepository.getAll();
+    const data = await menuManager.getItems();
     setProducts(data);
     setIsProductLoading(false);
   };
@@ -151,9 +151,9 @@ const AdminPanel: React.FC = () => {
       if (uploadError) throw uploadError;
       const { data: { publicUrl } } = supabase.storage.from('media').getPublicUrl(fileName);
       return publicUrl;
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert("Error subiendo imagen");
+      alert(`Error subiendo imagen: ${e.message || JSON.stringify(e)}`);
       return null;
     }
   };
@@ -226,6 +226,25 @@ const AdminPanel: React.FC = () => {
             isPublic: { ...sec.settings.isPublic, value: config.isPublic },
           }
         };
+      } else if (sec.id === 'home') {
+        return {
+          ...sec,
+          settings: {
+            ...sec.settings,
+            headline: { ...sec.settings.headline, value: config.homeHeadline },
+            subheadline: { ...sec.settings.subheadline, value: config.homeSubheadline },
+            primaryColor: { ...sec.settings.primaryColor, value: config.primaryColor }
+          }
+        };
+      } else if (sec.id === 'menu') {
+        return {
+          ...sec,
+          settings: {
+            ...sec.settings,
+            fontFamily: { ...sec.settings.fontFamily, value: config.menuFontFamily },
+            priceColor: { ...sec.settings.priceColor, value: config.menuPriceColor }
+          }
+        };
       }
       return sec;
     }));
@@ -270,6 +289,23 @@ const AdminPanel: React.FC = () => {
         updateConfig({
           introText: storySettings.introText.value,
           lineColor: storySettings.lineColor.value,
+        });
+      }
+    } else if (sectionId === 'home') {
+      const homeSettings = sections.find(s => s.id === 'home')?.settings;
+      if (homeSettings) {
+        updateConfig({
+          homeHeadline: homeSettings.headline.value,
+          homeSubheadline: homeSettings.subheadline.value,
+          primaryColor: homeSettings.primaryColor.value,
+        });
+      }
+    } else if (sectionId === 'menu') {
+      const menuSettings = sections.find(s => s.id === 'menu')?.settings;
+      if (menuSettings) {
+        updateConfig({
+          menuFontFamily: menuSettings.fontFamily.value,
+          menuPriceColor: menuSettings.priceColor.value
         });
       }
     }
@@ -542,14 +578,14 @@ const AdminPanel: React.FC = () => {
                 <h4 className="font-punk text-lg border-b-2 border-black mb-2">IDENTIDAD</h4>
                 <div className="flex gap-4">
                   <div className="w-1/3">
-                    <label className="font-bold text-xs uppercase text-gray-400">SKU / ID</label>
-                    <input className="w-full border-b-2 border-black font-mono text-lg p-1 bg-transparent"
+                    <label className="font-bold text-xs uppercase text-black">SKU / ID</label>
+                    <input className="w-full border-b-2 border-black font-mono text-lg p-1 bg-transparent text-black placeholder-gray-500"
                       placeholder="BURG-01"
                       value={editingProduct.sku || ''} onChange={e => setEditingProduct({ ...editingProduct, sku: e.target.value })} />
                   </div>
                   <div className="flex-1">
-                    <label className="font-bold text-xs uppercase text-gray-400">Nombre</label>
-                    <input className="w-full border-b-2 border-black font-display text-2xl p-1 bg-transparent placeholder-gray-300"
+                    <label className="font-bold text-xs uppercase text-black">Nombre</label>
+                    <input className="w-full border-b-2 border-black font-display text-2xl p-1 bg-transparent text-black placeholder-gray-500"
                       placeholder="Nombre del Plato"
                       value={editingProduct.name} onChange={e => setEditingProduct({ ...editingProduct, name: e.target.value })} />
                   </div>
@@ -561,14 +597,14 @@ const AdminPanel: React.FC = () => {
                 <h4 className="font-punk text-lg border-b-2 border-black mb-2">COMERCIAL</h4>
                 <div className="flex gap-4">
                   <div className="flex-1">
-                    <label className="font-bold text-xs uppercase text-gray-400">Precio</label>
-                    <input className="w-full border-b-2 border-black font-hand text-xl p-1 bg-transparent"
+                    <label className="font-bold text-xs uppercase text-black">Precio</label>
+                    <input className="w-full border-b-2 border-black font-hand text-xl p-1 text-black placeholder-gray-500"
                       placeholder="34K"
                       value={editingProduct.price} onChange={e => setEditingProduct({ ...editingProduct, price: e.target.value })} />
                   </div>
                   <div className="flex-1">
-                    <label className="font-bold text-xs uppercase text-gray-400">Categoría</label>
-                    <select className="w-full border-b-2 border-black font-hand text-lg p-1 bg-transparent"
+                    <label className="font-bold text-xs uppercase text-black">Categoría</label>
+                    <select className="w-full border-b-2 border-black font-hand text-lg p-1 bg-transparent text-black"
                       value={editingProduct.category} onChange={e => setEditingProduct({ ...editingProduct, category: e.target.value as any })}>
                       {Object.values(MenuCategory).map(c => <option key={c} value={c}>{c}</option>)}
                     </select>
@@ -580,19 +616,19 @@ const AdminPanel: React.FC = () => {
               <div className="space-y-4 border-2 border-black p-4 bg-white shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
                 <h4 className="font-punk text-lg border-b-2 border-black mb-2">DETALLES</h4>
                 <div>
-                  <label className="font-bold text-xs uppercase text-gray-400">Descripción (Ingredientes)</label>
-                  <textarea className="w-full border-2 border-black font-hand text-sm p-2 h-20"
+                  <label className="font-bold text-xs uppercase text-black">Descripción (Ingredientes)</label>
+                  <textarea className="w-full border-2 border-black font-hand text-sm p-2 h-20 text-black placeholder-gray-500"
                     value={editingProduct.description} onChange={e => setEditingProduct({ ...editingProduct, description: e.target.value })} />
                 </div>
                 <div className="flex gap-4">
                   <div className="w-1/4">
-                    <label className="font-bold text-xs uppercase text-gray-400">Capítulo</label>
-                    <input type="number" className="w-full border-b-2 border-black font-mono text-lg p-1"
+                    <label className="font-bold text-xs uppercase text-black">Capítulo</label>
+                    <input type="number" className="w-full border-b-2 border-black font-mono text-lg p-1 text-black"
                       value={editingProduct.chapter} onChange={e => setEditingProduct({ ...editingProduct, chapter: parseInt(e.target.value) || 1 })} />
                   </div>
                   <div className="flex-1">
-                    <label className="font-bold text-xs uppercase text-gray-400">Etiquetas (Separadas por comas)</label>
-                    <input className="w-full border-b-2 border-black font-hand text-sm p-1"
+                    <label className="font-bold text-xs uppercase text-black">Etiquetas (Separadas por comas)</label>
+                    <input className="w-full border-b-2 border-black font-hand text-sm p-1 text-black placeholder-gray-500"
                       placeholder="Picante, Veggie..."
                       value={editingProduct.tags?.join(', ') || ''}
                       onChange={e => setEditingProduct({ ...editingProduct, tags: e.target.value.split(',').map(t => t.trim()) })} />
@@ -679,14 +715,20 @@ const AdminPanel: React.FC = () => {
 
             <button className="bg-primary text-white font-punk text-xl px-8 py-2 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-y-1 hover:shadow-none transition-all flex items-center gap-2"
               onClick={async () => {
-                if (editingProduct.id === 'new') {
-                  const newId = Date.now().toString();
-                  await menuRepository.create({ ...editingProduct, id: newId });
-                } else {
-                  await menuRepository.update(editingProduct.id, editingProduct);
+                if (!editingProduct.name || !editingProduct.price) {
+                  setLog("⚠️ Falta nombre o precio.");
+                  return;
                 }
-                setEditingProduct(null);
-                loadProducts();
+                setLog("⏳ Guardando en la base de datos...");
+                try {
+                  await menuManager.saveItem(editingProduct);
+                  setLog(`✅ Producto "${editingProduct.name}" guardado con éxito.`);
+                  await loadProducts();
+                  setEditingProduct(null);
+                } catch (error) {
+                  console.error(error);
+                  setLog("❌ Error al guardar. Revisa la conexión.");
+                }
               }}>
               <Save size={20} /> GUARDAR
             </button>
@@ -726,7 +768,7 @@ const AdminPanel: React.FC = () => {
                         // Optimistic update
                         setProducts(newProducts);
                         // Persist Order
-                        await Promise.all(newProducts.map((p, idx) => menuRepository.update(p.id, { order: idx })));
+                        await Promise.all(newProducts.map((p, idx) => menuManager.updateItem(p.id, { order: idx })));
                         loadProducts();
                       }
                     }}
@@ -741,7 +783,7 @@ const AdminPanel: React.FC = () => {
                         newProducts[index] = newProducts[index + 1];
                         newProducts[index + 1] = temp;
                         setProducts(newProducts);
-                        await Promise.all(newProducts.map((p, idx) => menuRepository.update(p.id, { order: idx })));
+                        await Promise.all(newProducts.map((p, idx) => menuManager.updateItem(p.id, { order: idx })));
                         loadProducts();
                       }
                     }}
@@ -766,14 +808,14 @@ const AdminPanel: React.FC = () => {
               </div>
               <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button title="Duplicar" onClick={() => setEditingProduct({ ...p, id: 'new', name: `${p.name} (Copia)`, sku: `${p.sku}-CP` })}><Sparkles size={16} className="text-purple-600" /></button>
-                <button title="Destacar" onClick={async () => { await menuRepository.update(p.id, { isFeatured: !p.isFeatured }); loadProducts(); }}>
+                <button title="Destacar" onClick={async () => { await menuManager.updateItem(p.id, { isFeatured: !p.isFeatured }); loadProducts(); }}>
                   <Star size={16} className={p.isFeatured ? "fill-yellow-400 text-yellow-400" : "text-gray-400"} />
                 </button>
-                <button title="Ocultar" onClick={async () => { await menuRepository.update(p.id, { isVisible: !p.isVisible }); loadProducts(); }}>
+                <button title="Ocultar" onClick={async () => { await menuManager.updateItem(p.id, { isVisible: !p.isVisible }); loadProducts(); }}>
                   {p.isVisible ? <Eye size={16} /> : <EyeOff size={16} />}
                 </button>
                 <button onClick={() => setEditingProduct(p)} className="bg-black text-white px-2 py-0.5 font-bold text-xs">EDITAR</button>
-                <button title="Eliminar" className="text-red-500 hover:bg-red-100 p-1" onClick={async () => { if (confirm('¿Borrar?')) { await menuRepository.delete(p.id); loadProducts(); } }}>
+                <button title="Eliminar" className="text-red-500 hover:bg-red-100 p-1" onClick={async () => { if (confirm('¿Borrar?')) { await menuManager.deleteItem(p.id); loadProducts(); } }}>
                   <Trash2 size={16} />
                 </button>
               </div>
@@ -945,7 +987,9 @@ const AdminPanel: React.FC = () => {
 
           {/* COLUMNA CONTROLES */}
           <div className="flex-1 bg-white border-4 border-black p-6 shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] order-2 lg:order-1">
-            {activeSection === 'story' ? (
+            {activeSection === 'products' ? (
+              renderProductManager()
+            ) : activeSection === 'story' ? (
               renderStoryManager()
             ) : activeSection === 'recommend' ? (
               renderOracleManager()

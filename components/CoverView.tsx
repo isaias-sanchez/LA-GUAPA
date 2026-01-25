@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AppView } from '../types';
+import { AppView, MenuItem } from '../types';
 import { ProductDiario } from './ProductDiario';
-import { MENU_ITEMS } from '../constants';
+import { menuManager } from '../services/MenuManager';
+import { DEFAULT_PUNK_IMAGE } from '../constants';
 
 interface CoverViewProps {
   onEnter?: () => void;
@@ -28,9 +29,23 @@ const CoverView: React.FC<CoverViewProps> = ({
   ownerText = "Propiedad de:\nEl Exiliado"
 }) => {
   const [isJournalOpen, setIsJournalOpen] = useState(isPreview); // Open by default if preview
-  const heroAnimationUrl = "https://secaqjszqfywcoykllhx.supabase.co/storage/v1/object/sign/LA%20GUAPA/Quiero_que_hagas_1080p_202601182223-ezgif.com-video-to-webp-converter.webp?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV8zOGI0YTY5My0xNmVkLTRhYmYtYTgyNS0wMDAxZTU3N2RlNzMiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJMQSBHVUFQQS9RdWllcm9fcXVl_aGFnYXNfMTA4MHBfMjAyNjAxMTgyMjIzLWV6Z2lmLnNvbS12aWRlby10by13ZWJwLWNvbnZlcnRlci53ZWJwIiwiaWF0IjoxNzY4Nzk1NDEyLCJleHAiOjE3Njk0MDAyMTJ9.ZywbwEV56BEBMAAtHvhLgDQJQmEhVzak-ZK57WNueK8";
+  const [products, setProducts] = useState<MenuItem[]>([]);
 
-  const featuredProducts = MENU_ITEMS.filter(item => item.tags?.includes('Signature'));
+  // Use first featured product as hero, or fallback
+  const featuredProduct = products.find(p => p.isFeatured);
+  const heroAnimationUrl = featuredProduct?.image || DEFAULT_PUNK_IMAGE;
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const data = await menuManager.getItems();
+        setProducts(data);
+      } catch (e) { console.error("Error loading cover products", e); }
+    };
+    load();
+  }, []);
+
+  const featuredProducts = products.filter(item => item.isFeatured);
 
   // Handler wrapper to allow optional onEnter
   const handleEnter = () => {

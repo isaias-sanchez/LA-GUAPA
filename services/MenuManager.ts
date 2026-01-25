@@ -86,6 +86,31 @@ export class MenuManager {
         const matches = punkWords.filter(w => text.toLowerCase().includes(w));
         return (matches.length > 0 || text.length > 20) ? 1 : 0.2;
     }
+
+    // CRUD Methods
+    async getItems(): Promise<MenuItem[]> {
+        return this.repo.getAll();
+    }
+
+    async saveItem(item: MenuItem): Promise<void> {
+        // Handle creation vs update logic
+        if (!item.id || item.id === 'new') {
+            const newItem = { ...item, id: Date.now().toString() }; // Generate ID if new
+            // Validate required fields if needed?
+            if (!newItem.name) throw new Error("Nombre requerido");
+            await this.repo.create(newItem);
+        } else {
+            await this.repo.update(item.id, item);
+        }
+    }
+
+    async updateItem(id: string, changes: Partial<MenuItem>): Promise<void> {
+        await this.repo.update(id, changes);
+    }
+
+    async deleteItem(id: string): Promise<void> {
+        await this.repo.delete(id);
+    }
 }
 
 // export const menuRepository = new LocalStorageRepository();
